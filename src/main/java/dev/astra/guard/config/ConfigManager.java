@@ -47,7 +47,7 @@ public final class ConfigManager {
         hardPayload       = cfg.getInt("netty.payload.hard",      1_048_576);
         maxPayloadsPerTick= cfg.getInt("netty.payload.maxPerTick",       50);
         maxFlagItemA = cfg.getInt("item.a.max-flag",      3);
-        itemAMessage = cfg.getString("item.a.punish-message", "§cIllegal item Lore/NBT size");
+        itemAMessage = toLegacy(cfg.getString("item.a.punish-message", "§cIllegal item Lore/NBT size"));
     }
 
     private String toLegacy(String s) {
@@ -74,7 +74,6 @@ public final class ConfigManager {
     public int getSoftPayload() {
         return softPayload;
     }
-
     public int getHardPayload() {
         return hardPayload;
     }
