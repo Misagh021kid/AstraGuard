@@ -7,6 +7,10 @@ netty:
     soft: 262144        # 256 KB → just flag
     hard: 1048576       # 1 MB   → instant kick
     maxPerTick: 50      # max custom-payloads a player may send in 1 tick
+item:
+  a:
+    max-flag: 3
+    punish-message: ""
 
 messages:
   kick: "&cAstraGuard: Crash attempt detected &7({check})"

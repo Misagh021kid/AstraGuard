@@ -7,7 +7,9 @@ import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientCreativeInventoryAction;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientNameItem;
+import dev.astra.guard.Main;
 import dev.astra.guard.checks.Check;
+import dev.astra.guard.config.ConfigManager;
 import dev.astra.guard.utils.TaskUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
@@ -20,8 +22,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 public final class ItemA implements Check {
-    private static final int MAX_FLAGS = 3;
+    private static final ConfigManager configManager = new ConfigManager(Main.getInstance());
+    private static final int MAX_FLAGS = configManager.getMaxFlagItemA();
     private static final Map<UUID, Integer> flagCounts = new ConcurrentHashMap<>();
+
 
     @Override
     public String name() {
@@ -92,6 +96,6 @@ public final class ItemA implements Check {
         }
     }
     private void kick(Player player) {
-        player.kick(Component.text("§cIllegal item Lore/NBT size"));
+        player.kick(Component.text(configManager.getItemAMessage()));
     }
 }
