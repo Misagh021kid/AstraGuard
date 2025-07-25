@@ -10,17 +10,22 @@ import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Main extends JavaPlugin {
-    @Getter private static Main instance;
-    @Getter private CheckManager checkManager;
-    @Getter private ConfigManager configManager;
+    @Getter
+    private static Main instance;
+    @Getter
+    private CheckManager checkManager;
+    @Getter
+    private ConfigManager configManager;
 
-    @Override public void onLoad() {
+    @Override
+    public void onLoad() {
         instance = this;
         PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
         PacketEvents.getAPI().load();
     }
 
-    @Override public void onEnable() {
+    @Override
+    public void onEnable() {
         PacketEvents.getAPI().init();
         TaskUtil.bootstrap(this);
         configManager = new ConfigManager(this);
@@ -32,7 +37,8 @@ public final class Main extends JavaPlugin {
                 .registerListener(new PlayerListener(checkManager));
     }
 
-    @Override public void onDisable() {
+    @Override
+    public void onDisable() {
         PacketEvents.getAPI().terminate();
     }
 }

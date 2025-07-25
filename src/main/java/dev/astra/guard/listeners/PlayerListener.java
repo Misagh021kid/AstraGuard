@@ -16,9 +16,12 @@ public final class PlayerListener extends PacketListenerAbstract implements List
         this.mgr = m;
     }
 
-    @Override public void onPacketReceive(PacketReceiveEvent e) {
+    @Override
+    public void onPacketReceive(PacketReceiveEvent e) {
         mgr.handle(e);
     }
 
-    @EventHandler public void onQuit(PlayerQuitEvent e) { }
+    @EventHandler
+    public void onQuit(PlayerQuitEvent e) {
+    }
 }
