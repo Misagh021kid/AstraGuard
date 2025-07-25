@@ -2,6 +2,7 @@ package dev.astra.guard.checks;
 
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import dev.astra.guard.checks.impl.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +22,7 @@ public final class CheckManager {
     }
 
     public void handle(PacketReceiveEvent e) {
+
         for (int i = 0, s = checks.size(); i < s; i++) checks.get(i).handle(e);
     }
 }
