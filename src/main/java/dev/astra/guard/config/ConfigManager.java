@@ -8,14 +8,23 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class ConfigManager {
     private final JavaPlugin plugin;
     private FileConfiguration cfg;
-    @Getter private int maxViolations;
-    @Getter private long violationResetMinutes;
-    @Getter private String kickMessage;
-    @Getter private String flagLogFormat;
+    @Getter
+    private int maxViolations;
+    @Getter
+    private long violationResetMinutes;
+    @Getter
+    private String kickMessage;
+    @Getter
+    private String flagLogFormat;
 
-    public ConfigManager(JavaPlugin plugin) { this.plugin = plugin; }
+    public ConfigManager(JavaPlugin plugin) {
+        this.plugin = plugin;
+    }
 
-    public void init() { plugin.saveDefaultConfig(); reload(); }
+    public void init() {
+        plugin.saveDefaultConfig();
+        reload();
+    }
 
     public void reload() {
         plugin.reloadConfig();
