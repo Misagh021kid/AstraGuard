@@ -1,4 +1,8 @@
 package dev.astra.guard.checks;
 
-public class Check {
+import com.github.retrooper.packetevents.event.PacketReceiveEvent;
+
+public interface Check {
+    String name();
+    void handle(PacketReceiveEvent e);
 }

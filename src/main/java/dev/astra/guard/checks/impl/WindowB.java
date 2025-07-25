@@ -1,4 +1,9 @@
 package dev.astra.guard.checks.impl;
 
-public class WindowB {
+import com.github.retrooper.packetevents.event.PacketReceiveEvent;
+import dev.astra.guard.checks.Check;
+
+public final class WindowB implements Check {
+    public String name() { return "Window-B"; }
+    public void handle(PacketReceiveEvent e) { }
 }

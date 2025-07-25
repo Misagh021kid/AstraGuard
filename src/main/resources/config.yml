@@ -1,0 +1,7 @@
+violations:
+  max: 5
+  reset-minutes: 15
+
+messages:
+  kick: "&cAstraGuard: Crash attempt detected &7({check})"
+  flag-log: "&b{player} flagged by {check} ({detail}) [{count}/{max}]"
