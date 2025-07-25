@@ -12,11 +12,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class Main extends JavaPlugin {
     private CheckManager checkManager;
     private ConfigManager configManager;
+    private static Main instance;
 
     @Override
     public void onLoad() {
         PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
         PacketEvents.getAPI().load();
+        instance = this;
+
     }
 
     @Override
@@ -39,4 +42,8 @@ public final class Main extends JavaPlugin {
     public ConfigManager getConfigManager() {
         return configManager;
     }
+
+    public static Main getInstance() { return instance; }
+
+
 }

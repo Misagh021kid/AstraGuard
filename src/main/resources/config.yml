@@ -2,6 +2,13 @@ violations:
   max: 5
   reset-minutes: 15
 
+netty:
+  payload:
+    soft: 262144        # 256 KB → just flag
+    hard: 1048576       # 1 MB   → instant kick
+    maxPerTick: 50      # max custom-payloads a player may send in 1 tick
+
 messages:
   kick: "&cAstraGuard: Crash attempt detected &7({check})"
   flag-log: "&b{player} flagged by {check} ({detail}) [{count}/{max}]"
+

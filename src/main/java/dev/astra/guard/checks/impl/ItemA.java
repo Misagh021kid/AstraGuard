@@ -22,6 +22,7 @@ public final class ItemA implements Check {
         PacketTypeCommon type = e.getPacketType();
         ItemStack item = null;
 
+
         if (type == PacketType.Play.Client.CREATIVE_INVENTORY_ACTION) {
             WrapperPlayClientCreativeInventoryAction wrapper = new WrapperPlayClientCreativeInventoryAction(e);
             item = wrapper.getItemStack();

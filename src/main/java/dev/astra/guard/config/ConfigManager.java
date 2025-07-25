@@ -18,10 +18,14 @@ public final class ConfigManager {
     private long violationResetMinutes;
     private String kickMessage;
     private String flagLogFormat;
+    private int softPayload;
+    private int hardPayload;
+    private int maxPayloadsPerTick;
 
     public ConfigManager(JavaPlugin plugin) {
         this.plugin = plugin;
     }
+
 
     public void init() {
         plugin.saveDefaultConfig();
@@ -37,6 +41,9 @@ public final class ConfigManager {
                 "<red>AstraGuard: Crash attempt detected <gray>({check})"));
         flagLogFormat = cfg.getString("messages.flag-log",
                 "{player} flagged by {check} ({detail}) [{count}/{max}]");
+        softPayload       = cfg.getInt("netty.payload.soft",        262_144);
+        hardPayload       = cfg.getInt("netty.payload.hard",      1_048_576);
+        maxPayloadsPerTick= cfg.getInt("netty.payload.maxPerTick",       50);
     }
 
     private String toLegacy(String s) {
@@ -58,6 +65,18 @@ public final class ConfigManager {
 
     public String getFlagLogFormat() {
         return flagLogFormat;
+    }
+
+    public int getSoftPayload() {
+        return softPayload;
+    }
+
+    public int getHardPayload() {
+        return hardPayload;
+    }
+
+    public int getMaxPayloadsPerTick() {
+        return maxPayloadsPerTick;
     }
 
     public String formatLog(String tpl, String p, String ck, String d, int cnt, int max) {

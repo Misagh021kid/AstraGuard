@@ -9,5 +9,6 @@ public final class WindowA implements Check {
     }
 
     public void handle(PacketReceiveEvent e) {
+
     }
 }
