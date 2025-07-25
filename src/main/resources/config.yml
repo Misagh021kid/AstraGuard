@@ -1,3 +1,5 @@
+license-key: "LICENSE-KEY-HERE"
+
 violations:
   max: 5
   reset-minutes: 15
