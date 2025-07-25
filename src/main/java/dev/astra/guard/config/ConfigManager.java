@@ -1,7 +1,9 @@
 package dev.astra.guard.config;
 
 import lombok.Getter;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -31,14 +33,17 @@ public final class ConfigManager {
         cfg = plugin.getConfig();
         maxViolations = cfg.getInt("violations.max", 3);
         violationResetMinutes = cfg.getLong("violations.reset-minutes", 10);
-        kickMessage = color(cfg.getString("messages.kick",
-                "&cAstraGuard: Crash attempt detected &7({check})"));
+
+        kickMessage = deserializeToLegacy(cfg.getString("messages.kick",
+                "<red>AstraGuard: Crash attempt detected <gray>({check})"));
+
         flagLogFormat = cfg.getString("messages.flag-log",
                 "{player} flagged by {check} ({detail}) [{count}/{max}]");
     }
 
-    private String color(String s) {
-        return ChatColor.translateAlternateColorCodes('&', s);
+    private String deserializeToLegacy(String s) {
+        Component component = MiniMessage.miniMessage().deserialize(s);
+        return LegacyComponentSerializer.legacySection().serialize(component);
     }
 
     public String formatLog(String template, String p, String c,

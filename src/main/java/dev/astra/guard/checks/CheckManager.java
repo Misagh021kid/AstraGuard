@@ -21,6 +21,6 @@ public final class CheckManager {
     }
 
     public void handle(PacketReceiveEvent e) {
-        for (int i = 0, s = checks.size(); i < s; i++) checks.get(i).handle(e);
+        for (Check check : checks) check.handle(e);
     }
 }
