@@ -26,7 +26,7 @@ public final class NettyA implements Check {
             CacheBuilder.newBuilder()
                     .expireAfterWrite(50, TimeUnit.MILLISECONDS)
                     .concurrencyLevel(Runtime.getRuntime().availableProcessors())
-                    .<UUID, LongAdder>build();
+                    .build();
 
     public NettyA() {
         var cfg = Main.getInstance().getConfigManager();
@@ -42,8 +42,8 @@ public final class NettyA implements Check {
 
         if (e.getPacketType() != PacketType.Play.Client.PLUGIN_MESSAGE) return;
 
-        Player player = (Player) e.getPlayer();
-        WrapperPlayClientPluginMessage pkt = (WrapperPlayClientPluginMessage) e.getPacketType();
+        Player player = e.getPlayer();
+        WrapperPlayClientPluginMessage pkt = new WrapperPlayClientPluginMessage(e);
 
         LongAdder burst = BURST.getIfPresent(player.getUniqueId());
         if (burst == null) {
