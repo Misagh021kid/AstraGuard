@@ -3,5 +3,6 @@ version: '1.0-SNAPSHOT'
 main: dev.astra.guard.Main
 api-version: '1.20'
 load: STARTUP
-authors: [ KiloSheet, Misagh, YasharTurk! ]
+authors: [ KiloSheet, Misagh, YasharMaster ]
+depend: [ packetevents ]
 website: AstraDevelopment.iR
