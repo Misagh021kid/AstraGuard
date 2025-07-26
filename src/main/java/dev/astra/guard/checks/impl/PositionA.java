@@ -31,16 +31,19 @@ public class PositionA implements Check {
         float pitch = loc.getPitch();
 
         Player player = e.getPlayer();
+        if (player == null) return;
 
         if (Math.abs(x) > 30_000_000 || Math.abs(y) > 30_000_000 || Math.abs(z) > 30_000_000) {
-            TaskUtil.flag(player, name(), "invalid_coords: x=" + x + ", y=" + y + ", z=" + z);
-            e.setCancelled(true);
+            flag(player, e, "yaw/pitch: yaw=" + yaw + ", pitch=" + pitch);
             return;
         }
 
         if (yaw < -360 || yaw > 360 || pitch < -90 || pitch > 90) {
-            TaskUtil.flag(player, name(), "yaw/pitch: yaw=" + yaw + ", pitch=" + pitch);
-            e.setCancelled(true);
+            flag(player, e, "yaw/pitch: yaw=" + yaw + ", pitch=" + pitch);
         }
+    }
+    private void flag(Player p, PacketReceiveEvent e, String detail) {
+        TaskUtil.flag(p, name(), detail);
+        e.setCancelled(true);
     }
 }
