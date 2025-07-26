@@ -48,6 +48,7 @@ public final class NettyC implements Check {
         if (ev.getPacketType() != PacketType.Play.Client.CLICK_WINDOW) return;
 
         Player player = (Player) ev.getPlayer();
+        if (player == null) return;
         UUID uid      = player.getUniqueId();
 
         LongAdder burst = BURST.getIfPresent(uid);
