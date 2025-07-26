@@ -1,6 +1,5 @@
 package dev.astra.guard.checks.impl;
 
-import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
@@ -19,8 +18,8 @@ public final class BundleA implements Check {
         if (e.getPacketType() == PacketType.Play.Client.SELECT_BUNDLE_ITEM && bundlefound) {
             WrapperPlayClientSelectBundleItem packet = new WrapperPlayClientSelectBundleItem(e);
 
-            if (packet.getSelectedItemIndex() < 0 && packet.getSelectedItemIndex() != -1) {
-                kick(e.getPlayer(),e,"selectedindex:" +packet.getSelectedItemIndex());
+            if (packet.getSelectedItemIndex() < 0 || packet.getSelectedItemIndex() != -1) {
+                kick(e.getPlayer(), e,"selectedindex:" + packet.getSelectedItemIndex());
             }
         }
     }
