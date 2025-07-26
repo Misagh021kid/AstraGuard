@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/AstraGuard.main.iml" filepath="$PROJECT_DIR$/.idea/modules/AstraGuard.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/AstraGuard.test.iml" filepath="$PROJECT_DIR$/.idea/modules/AstraGuard.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/JavaSources.AstraGuard.main.iml" filepath="$PROJECT_DIR$/.idea/modules/JavaSources.AstraGuard.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/dev.astra.AstraGuard.main.iml" filepath="$PROJECT_DIR$/.idea/modules/dev.astra.AstraGuard.main.iml" />
     </modules>
   </component>
