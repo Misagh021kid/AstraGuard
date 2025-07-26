@@ -19,6 +19,7 @@ public final class CheckManager {
         checks.add(new WindowA());
         checks.add(new WindowB());
         checks.add(new WindowC());
+        checks.add(new PositionA());
     }
 
     public void handle(PacketReceiveEvent e) {
