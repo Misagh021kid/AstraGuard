@@ -45,7 +45,7 @@ public final class NettyA implements Check {
 
         if (e.getPacketType() != PacketType.Play.Client.PLUGIN_MESSAGE) return;
 
-        Player player = (Player) e.getPlayer();
+        Player player = e.getPlayer();
         WrapperPlayClientPluginMessage pkt = new WrapperPlayClientPluginMessage(e);
 
         LongAdder burst = BURST.getIfPresent(player.getUniqueId());
