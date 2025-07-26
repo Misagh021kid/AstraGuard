@@ -2,29 +2,20 @@ package dev.astra.guard.checks.impl;
 
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
-import com.github.retrooper.packetevents.protocol.item.ItemStack;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
-import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientCreativeInventoryAction;
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientEditBook;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientNameItem;
-import dev.astra.guard.Main;
 import dev.astra.guard.checks.Check;
-import dev.astra.guard.config.ConfigManager;
 import dev.astra.guard.utils.TaskUtil;
-import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 
 public final class ItemA implements Check {
-    private static final ConfigManager configManager = new ConfigManager(Main.getInstance());
-    private static final int MAX_FLAGS = configManager.getMaxFlagItemA();
-    private static final Map<UUID, Integer> flagCounts = new ConcurrentHashMap<>();
 
 
     @Override
@@ -35,25 +26,46 @@ public final class ItemA implements Check {
     @Override
     public void handle(PacketReceiveEvent e) {
         PacketTypeCommon type = e.getPacketType();
-        ItemStack item;
+        Player player = e.getPlayer();
 
 
-        if (type == PacketType.Play.Client.CREATIVE_INVENTORY_ACTION) {
-            WrapperPlayClientCreativeInventoryAction wrapper = new WrapperPlayClientCreativeInventoryAction(e);
-            item = wrapper.getItemStack();
+        if (e.getPacketType() == PacketType.Play.Client.EDIT_BOOK) {
+            WrapperPlayClientEditBook editBook = new WrapperPlayClientEditBook(e);
+            String title = editBook.getTitle();
+            List<String> pages = editBook.getPages();
 
-            if (item != null && item.getNBT() != null) {
-                String nbt = item.getNBT().toString();
+            if (pages == null || pages.isEmpty()) {
+                kick(player,e,"Illegal book page");
+                return;
+            }
 
-                int nbtSize = nbt.length();
+            int maxDataSize = e.getServerVersion().isOlderThan(ServerVersion.V_1_16) ? 8192 : 32768;
+            StringBuilder sb = new StringBuilder();
+            sb.append(title);
+            for (String page : pages) {
+                sb.append(page);
+            }
+            byte[] dataBytes = sb.toString().getBytes(StandardCharsets.UTF_8);
 
-                int maxDataSize = e.getServerVersion().isOlderThan(ServerVersion.V_1_16) ? 8192 : 32768;
+            if (dataBytes.length > maxDataSize) {
+                kick(player,e,"Illegal book page");
+                return;
+            }
+            if (title == null || title.length() > 32) {
+                kick(player,e,"Illegal book-title page");
+                return;
+            }
 
-                if (nbtSize > maxDataSize) {
-                    e.setCancelled(true);
-                    Player player = e.getPlayer();
-
-                    flag(player, "bytesSize: " + nbtSize);
+            final int MAX_BOOK_PAGES = 50;
+            final int MAX_PAGE_CHARACTERS = 256;
+            if (pages.size() > MAX_BOOK_PAGES) {
+                kick(player,e, "bytesSize: " + dataBytes.length);
+                return;
+            }
+            for (String page : pages) {
+                if (page.length() > MAX_PAGE_CHARACTERS) {
+                    kick(player,e, "bytesSize: " + dataBytes.length);
+                    return;
                 }
             }
         } else if (type == PacketType.Play.Client.NAME_ITEM) {
@@ -63,7 +75,7 @@ public final class ItemA implements Check {
             if (itemname != null && !itemname.isEmpty()) {
                 e.setCancelled(true);
 
-                Player player = e.getPlayer();
+                Player p = e.getPlayer();
                 org.bukkit.inventory.ItemStack bukkitItem = player.getInventory().getItemInMainHand();
 
                 if (bukkitItem.hasItemMeta()) {
@@ -76,7 +88,7 @@ public final class ItemA implements Check {
                             boolean tooLongLine = lore.stream().anyMatch(line -> plain.serialize(line).length() > 150);
 
                             if (tooManyLines || tooLongLine) {
-                                flag(player, "tooManyLines: " + (tooManyLines ? "lines" : "length"));
+                                kick(p,e, "tooManyLines: " + (tooManyLines ? "lines" : "length"));
                             }
                         }
                     }
@@ -84,18 +96,9 @@ public final class ItemA implements Check {
             }
         }
     }
-
-    private void flag(Player player, String reason) {
-        UUID id = player.getUniqueId();
-        int newCount = flagCounts.merge(id, 1, Integer::sum);
-        TaskUtil.flag(player, name(), reason);
-
-        if (newCount >= MAX_FLAGS) {
-            kick(player);
-            flagCounts.remove(id);
-        }
+    private void kick(Player p, PacketReceiveEvent e, String detail) {
+        TaskUtil.flag(p, name(), detail);
+        e.setCancelled(true);
     }
-    private void kick(Player player) {
-        player.kick(Component.text(configManager.getItemAMessage()));
-    }
+
 }
