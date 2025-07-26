@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 public class LicenseManager {
 
     private final Main plugin;
-    private static final String LICENSE_SERVER = "http://5.42.217.162:3000";
+    private static final String LICENSE_SERVER = "http://5.42.217.162:5000";
     private static final String API_KEY = "AstRaDeeeveeepolmeeeent2025FindSecrrretttKeeyyFoRRRPLULGIN";
 
     public LicenseManager(Main plugin) {
@@ -56,7 +56,7 @@ public class LicenseManager {
             JsonObject requestData = new JsonObject();
             requestData.addProperty("license", licenseKey);
 
-            String response = sendPostRequest(LICENSE_SERVER + "/status", requestData.toString());
+            String response = sendPostRequest("http://5.42.217.162:5001" + "/status", requestData.toString());
             JsonObject responseObject = JsonParser.parseString(response).getAsJsonObject();
 
             LicenseStatus status = new LicenseStatus();
@@ -100,7 +100,7 @@ public class LicenseManager {
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json; utf-8");
         connection.setRequestProperty("Accept", "application/json");
-        connection.setRequestProperty("Authorization", "Bearer " + API_KEY); // اضافه کردن API Key
+        connection.setRequestProperty("Authorization", "Bearer " + API_KEY);
         connection.setDoOutput(true);
 
         try (OutputStream os = connection.getOutputStream()) {
