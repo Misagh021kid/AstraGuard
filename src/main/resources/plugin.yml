@@ -1,7 +1,6 @@
 name: AstraGuard
 version: '1.0-SNAPSHOT'
 main: dev.astra.guard.Main
-api-version: '1.20'
 authors: [ KiloSheet, Misagh, YasharMaster ]
 depend: [ packetevents ]
 website: AstraDevelopment.iR
