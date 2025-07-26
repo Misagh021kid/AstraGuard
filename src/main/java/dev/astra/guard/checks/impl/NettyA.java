@@ -15,7 +15,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
 
-
 public final class NettyA implements Check {
 
     private final int SOFT;

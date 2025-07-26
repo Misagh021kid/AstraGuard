@@ -9,7 +9,12 @@ netty:
     soft: 262144        # 256 KB → just flag
     hard: 1048576       # 1 MB   → instant kick
     maxPerTick: 50      # max custom-payloads a player may send in 1 tick
-
+  windowClickGuard:
+    maxBurst:    20       # CLICK_WINDOW packets / 50 ms
+    nbtSoft:     65536    # soft-flag at 64 kB
+    nbtHard:     262144   # hard-flag at 256 kB
+    maxBees:     30       # max Bee entries per hive
+    maxStrikes:  5        # TaskUtil kicks after 5 soft flags
 messages:
   kick: "<red>AstraGuard: Crash attempt detected <gray>({check})"
   flag-log: "{player} flagged by {check} ({detail}) [{count}/{max}]"

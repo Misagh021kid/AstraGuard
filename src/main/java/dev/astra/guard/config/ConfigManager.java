@@ -21,8 +21,19 @@ public final class ConfigManager {
     private int softPayload;
     private int hardPayload;
     private int maxPayloadsPerTick;
-    private int maxFlagItemA;
     private String itemAMessage;
+
+    public int getInt(String path, int def) {
+        return cfg.getInt(path, def);
+    }
+
+    public double getDouble(String path, double def) {
+        return cfg.getDouble(path, def);
+    }
+
+    public long getLong(String path, long def) {
+        return cfg.getLong(path, def);
+    }
 
     public ConfigManager(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -43,9 +54,9 @@ public final class ConfigManager {
                 "<red>AstraGuard: Crash attempt detected <gray>({check})"));
         flagLogFormat = cfg.getString("messages.flag-log",
                 "{player} flagged by {check} ({detail}) [{count}/{max}]");
-        softPayload       = cfg.getInt("netty.payload.soft",        262_144);
-        hardPayload       = cfg.getInt("netty.payload.hard",      1_048_576);
-        maxPayloadsPerTick= cfg.getInt("netty.payload.maxPerTick",       50);
+        softPayload = cfg.getInt("netty.payload.soft", 262_144);
+        hardPayload = cfg.getInt("netty.payload.hard", 1_048_576);
+        maxPayloadsPerTick = cfg.getInt("netty.payload.maxPerTick", 50);
     }
 
     private String toLegacy(String s) {
@@ -72,6 +83,7 @@ public final class ConfigManager {
     public int getSoftPayload() {
         return softPayload;
     }
+
     public int getHardPayload() {
         return hardPayload;
     }
@@ -79,9 +91,8 @@ public final class ConfigManager {
     public int getMaxPayloadsPerTick() {
         return maxPayloadsPerTick;
     }
-    public int getMaxFlagItemA() {
-        return maxFlagItemA;
-    }
+
+
     public String getItemAMessage() {
         return itemAMessage;
     }
