@@ -26,12 +26,12 @@ public final class NettyB implements Check {
         byte[] data = msg.getData();
 
         if (channel.length() > 128 || !channel.matches("[\\w:./-]+")) {
-            kick(player, e, "bad-channel=" + channel);
+            kick(player, e, "bad-channel" + " ");
             return;
         }
 
         if (channel.equalsIgnoreCase("REGISTER") && data.length > 512) {
-            kick(player, e, "oversize-register=" + data.length);
+            kick(player, e, "oversize-register" + " ");
         }
     }
 

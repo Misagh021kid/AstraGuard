@@ -1,3 +1,4 @@
+// dev/astra/guard/checks/impl/BundleA.java
 package dev.astra.guard.checks.impl;
 
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
@@ -9,21 +10,30 @@ import dev.astra.guard.utils.TaskUtil;
 import org.bukkit.entity.Player;
 
 public final class BundleA implements Check {
-    public String name() {
-        return "Bundle-A";
-    }
 
+    @Override public String name() { return "Bundle-A"; }
+
+    @Override
     public void handle(PacketReceiveEvent e) {
-        boolean bundlefound = e.getServerVersion().isNewerThan(ServerVersion.V_1_17);
-        if (e.getPacketType() == PacketType.Play.Client.SELECT_BUNDLE_ITEM && bundlefound) {
-            WrapperPlayClientSelectBundleItem packet = new WrapperPlayClientSelectBundleItem(e);
+        if (e.getPacketType() != PacketType.Play.Client.SELECT_BUNDLE_ITEM) return;
+        if (!e.getServerVersion().isNewerThan(ServerVersion.V_1_17))       return;
 
-            if (packet.getSelectedItemIndex() < 0 || packet.getSelectedItemIndex() != -1) {
-                kick(e.getPlayer(), e,"selectedindex:" + packet.getSelectedItemIndex());
+        Player player = e.getPlayer();
+        if (player == null) return;
+
+        try {
+            WrapperPlayClientSelectBundleItem pkt = new WrapperPlayClientSelectBundleItem(e);
+            int idx = pkt.getSelectedItemIndex();
+
+            if (idx < 0 || idx > 127) {
+                flag(player, e, "index="+idx);
             }
+        } catch (IllegalArgumentException ex) {
+            flag(player, e, "malformed packet"+ " ");
         }
     }
-    private void kick(Player p, PacketReceiveEvent e, String detail) {
+
+    private void flag(Player p, PacketReceiveEvent e, String detail) {
         TaskUtil.flag(p, name(), detail);
         e.setCancelled(true);
     }
