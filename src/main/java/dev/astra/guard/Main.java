@@ -26,16 +26,16 @@ public final class Main extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
-        String licenseKey = getConfig().getString("license-key");
-        LicenseManager licenseManager = new LicenseManager(this);
-        boolean valid = licenseManager.checkLicense(licenseKey);
-
-        if (!valid) {
-            getLogger().severe("License Checked. invalid! Disabling plugin.");
-            getServer().getPluginManager().disablePlugin(this);
-        } else {
-            getLogger().info("License Checked Valid! Plugin enabled.");
-        }
+//        String licenseKey = getConfig().getString("license-key");
+//        LicenseManager licenseManager = new LicenseManager(this);
+//        boolean valid = licenseManager.checkLicense(licenseKey);
+//
+//        if (!valid) {
+//            getLogger().severe("License Checked. invalid! Disabling plugin.");
+//            getServer().getPluginManager().disablePlugin(this);
+//        } else {
+//            getLogger().info("License Checked Valid! Plugin enabled.");
+//        }
 
         PacketEvents.getAPI().init();
         configManager = new ConfigManager(this);

@@ -30,19 +30,22 @@ public final class NettyA implements Check {
 
     public NettyA() {
         var cfg = Main.getInstance().getConfigManager();
-        SOFT         = cfg.getSoftPayload();
-        HARD         = cfg.getHardPayload();
+        SOFT = cfg.getSoftPayload();
+        HARD = cfg.getHardPayload();
         MAX_PER_TICK = cfg.getMaxPayloadsPerTick();
     }
 
-    @Override public String name() { return "Netty-A"; }
+    @Override
+    public String name() {
+        return "Netty-A";
+    }
 
     @Override
     public void handle(PacketReceiveEvent e) {
 
         if (e.getPacketType() != PacketType.Play.Client.PLUGIN_MESSAGE) return;
 
-        Player player = e.getPlayer();
+        Player player = (Player) e.getPlayer();
         WrapperPlayClientPluginMessage pkt = new WrapperPlayClientPluginMessage(e);
 
         LongAdder burst = BURST.getIfPresent(player.getUniqueId());
