@@ -27,6 +27,8 @@ public final class ItemA implements Check {
     public void handle(PacketReceiveEvent e) {
         PacketTypeCommon type = e.getPacketType();
         Player player = e.getPlayer();
+        if (player == null) return;
+
 
 
         if (e.getPacketType() == PacketType.Play.Client.EDIT_BOOK) {

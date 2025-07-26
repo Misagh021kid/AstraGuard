@@ -19,6 +19,7 @@ public final class NettyB implements Check {
         if (e.getPacketType() != PacketType.Play.Client.PLUGIN_MESSAGE) return;
 
         Player player = e.getPlayer();
+        if (player == null) return;
         WrapperPlayClientPluginMessage msg = new WrapperPlayClientPluginMessage(e);
 
         String channel = msg.getChannelName();
