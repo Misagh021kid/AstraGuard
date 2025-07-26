@@ -11,6 +11,6 @@ netty:
     maxPerTick: 50      # max custom-payloads a player may send in 1 tick
 
 messages:
-  kick: "&cAstraGuard: Crash attempt detected &7({check})"
-  flag-log: "&b{player} flagged by {check} ({detail}) [{count}/{max}]"
+  kick: "<red>AstraGuard: Crash attempt detected <gray>({check})"
+  flag-log: "{player} flagged by {check} ({detail}) [{count}/{max}]"
 

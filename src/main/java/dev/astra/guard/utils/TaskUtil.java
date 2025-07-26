@@ -45,21 +45,33 @@ public final class TaskUtil {
         Bukkit.getScheduler().runTaskLater(plugin, r, t);
     }
 
-    public static void flag(Player p, String check, String detail) {
-        ConfigManager c = plugin.getConfigManager();
-        int max = c.getMaxViolations();
-        LongAdder adder = violations.getIfPresent(p.getUniqueId());
+    public static void flag(Player player, String check, String detail) {
+        var cfg  = plugin.getConfigManager();
+        int max  = cfg.getMaxViolations();
+        UUID uid = player.getUniqueId();
+
+        LongAdder adder = violations.getIfPresent(uid);
         if (adder == null) {
             adder = new LongAdder();
-            violations.put(p.getUniqueId(), adder);
+            violations.put(uid, adder);
         }
         adder.increment();
-        int cnt = adder.intValue();
-        plugin.getLogger().warning(c.formatLog(c.getFlagLogFormat(), p.getName(), check, detail, cnt, max));
-        if (cnt < max) return;
-        sync(() -> {
-            if (p.isOnline()) p.kick(Component.text(c.getKickMessage().replace("{check}", check)));
-        });
+        int count = adder.intValue();
+
+        if (count <= max) {
+            plugin.getLogger().warning(cfg.formatLog(
+                    cfg.getFlagLogFormat(), player.getName(), check, detail, count, max));
+        }
+
+        if (count >= max) {
+            sync(() -> {
+                if (player.isOnline()) {
+                    String msg = cfg.getKickMessage().replace("{check}", check);
+                    player.kick(Component.text(msg));
+                }
+            });
+            adder.reset();
+        }
     }
 
     public static void reloadConfig() {
