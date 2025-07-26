@@ -24,8 +24,8 @@ public final class ItemB implements Check {
         int slot = pickItem.getSlot();
         if (slot < 0) {
             Player player = e.getPlayer();
+            if (player == null) return;
             kick(player, e, "invalid_pick_slot=" + slot);
-            e.setCancelled(true);
         }
     }
 
