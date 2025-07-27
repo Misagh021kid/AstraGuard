@@ -4,3 +4,14 @@ main: dev.astra.guard.Main
 authors: [ KiloSheet, Misagh, YasharMaster ]
 depend: [ packetevents ]
 website: AstraDevelopment.iR
+commands:
+  astra:
+    description: AstraGuard main command
+    usage: /<command> [reload]
+    permission: astraguard.admin
+    aliases: [ag]
+
+permissions:
+  astraguard.admin:
+    description: Allows using admin commands
+    default: op
