@@ -6,7 +6,6 @@ import dev.astra.guard.managers.LicenseManager;
 import dev.astra.guard.checks.CheckManager;
 import dev.astra.guard.config.ConfigManager;
 import dev.astra.guard.listeners.PlayerListener;
-import dev.astra.guard.listeners.PacketLogger;
 import dev.astra.guard.utils.TaskUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -28,7 +27,6 @@ public final class Main extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
-        new PacketLogger(this).register();
         String licenseKey = getConfig().getString("license-key");
         if (licenseKey == null || licenseKey.isEmpty()) {
             getLogger().severe("No license key found in config.yml! Disabling plugin.");
