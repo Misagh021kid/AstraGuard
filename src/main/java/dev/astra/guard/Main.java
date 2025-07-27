@@ -1,6 +1,7 @@
 package dev.astra.guard;
 
 import com.github.retrooper.packetevents.PacketEvents;
+import dev.astra.guard.commands.AstraCommand;
 import dev.astra.guard.listeners.PacketLogger;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import dev.astra.guard.managers.LicenseManager;
@@ -11,6 +12,8 @@ import dev.astra.guard.utils.TaskUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.Objects;
 
 public final class Main extends JavaPlugin {
     private CheckManager checkManager;
@@ -28,6 +31,11 @@ public final class Main extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        configManager = new ConfigManager(this);
+        configManager.init();
+
+        Objects.requireNonNull(getCommand("astra")).setExecutor(new AstraCommand(this));
+
         new PacketLogger(this).register();
 
         String licenseKey = getConfig().getString("license-key");
