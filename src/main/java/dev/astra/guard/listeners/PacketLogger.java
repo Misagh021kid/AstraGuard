@@ -83,7 +83,7 @@ public final class PacketLogger extends PacketListenerAbstract {
 
         if (loggingActive.get()) {
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                Player player = (Player) event.getPlayer();
+                Player player = event.getPlayer();
                 logPacket("RECEIVE", player.getName(), event.getPacketType().toString(), size);
             });
         }
@@ -97,7 +97,7 @@ public final class PacketLogger extends PacketListenerAbstract {
 
         if (loggingActive.get()) {
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                Player player = (Player) event.getPlayer();
+                Player player = event.getPlayer();
                 logPacket("SEND", player.getName(), event.getPacketType().toString(), size);
             });
         }

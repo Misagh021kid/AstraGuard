@@ -1,4 +1,3 @@
-// dev/astra/guard/checks/impl/BundleA.java
 package dev.astra.guard.checks.impl;
 
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;

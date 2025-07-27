@@ -3,6 +3,7 @@ package dev.astra.guard;
 import com.github.retrooper.packetevents.PacketEvents;
 import dev.astra.guard.commands.AstraCommand;
 import dev.astra.guard.listeners.PacketLogger;
+import dev.astra.guard.managers.AlertManager;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import dev.astra.guard.managers.LicenseManager;
 import dev.astra.guard.checks.CheckManager;
@@ -18,6 +19,7 @@ import java.util.Objects;
 public final class Main extends JavaPlugin {
     private CheckManager checkManager;
     private ConfigManager configManager;
+    private AlertManager alertManager;
     private static Main instance;
 
     @Override
@@ -32,6 +34,7 @@ public final class Main extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
         configManager = new ConfigManager(this);
+        alertManager = new AlertManager(this);
         configManager.init();
 
         Objects.requireNonNull(getCommand("astra")).setExecutor(new AstraCommand(this));
@@ -114,7 +117,7 @@ public final class Main extends JavaPlugin {
         configManager = new ConfigManager(this);
         configManager.init();
         checkManager = new CheckManager();
-        TaskUtil.bootstrap(this);
+        TaskUtil taskUtil = new TaskUtil(this);
 
         PacketEvents.getAPI().getEventManager()
                 .registerListener(new PlayerListener(checkManager));
@@ -132,6 +135,9 @@ public final class Main extends JavaPlugin {
 
     public static Main getInstance() {
         return instance;
+    }
+    public AlertManager getAlertManager() {
+        return alertManager;
     }
 
 

@@ -1,12 +1,14 @@
 package dev.astra.guard.utils;
 
-import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.LoadingCache;
+import com.google.common.cache.CacheLoader;
 import dev.astra.guard.Main;
 import dev.astra.guard.config.ConfigManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -14,67 +16,67 @@ import java.util.concurrent.atomic.LongAdder;
 
 public final class TaskUtil {
     private static Main plugin;
-    private static Cache<UUID, LongAdder> violations;
+    private static LoadingCache<UUID, LongAdder> violations;
 
-    private TaskUtil() {
+    public TaskUtil(Main plugin) {
+        TaskUtil.plugin = plugin;
+        loadCache();
     }
 
-    public static void bootstrap(Main p) {
-        plugin = p;
-        rebuildCache();
-    }
-
-    private static void rebuildCache() {
-        ConfigManager c = plugin.getConfigManager();
+    private void loadCache() {
+        ConfigManager cfg = plugin.getConfigManager();
         violations = CacheBuilder.newBuilder()
-                .expireAfterAccess(c.getViolationResetMinutes(), TimeUnit.MINUTES)
+                .expireAfterAccess(cfg.getViolationResetMinutes(), TimeUnit.MINUTES)
                 .concurrencyLevel(Runtime.getRuntime().availableProcessors())
-                .build();
-
+                .build(new CacheLoader<>() {
+                    @Override
+                    public @NotNull LongAdder load(@NotNull UUID key) {
+                        return new LongAdder();
+                    }
+                });
     }
 
-    public static void async(Runnable r) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, r);
+    public void runAsync(Runnable task) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, task);
     }
 
-    public static void sync(Runnable r) {
-        Bukkit.getScheduler().runTask(plugin, r);
+    public static void runSync(Runnable task) {
+        Bukkit.getScheduler().runTask(plugin, task);
     }
 
-    public static void later(Runnable r, long t) {
-        Bukkit.getScheduler().runTaskLater(plugin, r, t);
+    public void runLater(Runnable task, long ticks) {
+        Bukkit.getScheduler().runTaskLater(plugin, task, ticks);
     }
 
     public static void flag(Player player, String check, String detail) {
-        var cfg  = plugin.getConfigManager();
-        int max  = cfg.getMaxViolations();
-        UUID uid = player.getUniqueId();
+        ConfigManager cfg = plugin.getConfigManager();
+        int max = cfg.getMaxViolations();
+        UUID uuid = player.getUniqueId();
 
-        LongAdder adder = violations.getIfPresent(uid);
-        if (adder == null) {
-            adder = new LongAdder();
-            violations.put(uid, adder);
-        }
-        adder.increment();
-        int count = adder.intValue();
+        LongAdder counter = violations.getUnchecked(uuid);
+        counter.increment();
+        int count = counter.intValue();
 
-        if (count <= max) {
-            plugin.getLogger().warning(cfg.formatLog(
-                    cfg.getFlagLogFormat(), player.getName(), check, detail, count, max));
-        }
+        String logMsg = cfg.formatLog(cfg.getFlagLogFormat(), player.getName(), check, detail, count, max);
+        plugin.getLogger().warning(logMsg);
+
+        Component alert = Component.text(logMsg);
+        Bukkit.getOnlinePlayers().stream()
+                .filter(p -> p.hasPermission("astraguard.alerts"))
+                .forEach(p -> p.sendMessage(alert));
 
         if (count >= max) {
-            sync(() -> {
+            violations.invalidate(uuid);
+            runSync(() -> {
                 if (player.isOnline()) {
-                    String msg = cfg.getKickMessage().replace("{check}", check);
-                    player.kick(Component.text(msg));
+                    String kickMsg = cfg.getKickMessage().replace("{check}", check);
+                    player.kick(Component.text(kickMsg));
                 }
             });
-            adder.reset();
         }
     }
 
-    public static void reloadConfig() {
-        rebuildCache();
+    public void reloadConfig() {
+        loadCache();
     }
 }
