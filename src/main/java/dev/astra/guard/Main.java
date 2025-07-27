@@ -32,6 +32,7 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        new UpdateChecker(this).check();
         saveDefaultConfig();
         configManager = new ConfigManager(this);
         alertManager = new AlertManager(this);
