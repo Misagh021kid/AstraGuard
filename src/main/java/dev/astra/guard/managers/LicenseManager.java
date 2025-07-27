@@ -56,7 +56,7 @@ public class LicenseManager {
             JsonObject requestData = new JsonObject();
             requestData.addProperty("license", licenseKey);
 
-            String response = sendPostRequest(""http://5.42.217.162:5001" + "/status", requestData.toString());
+            String response = sendPostRequest("http://5.42.217.162:5000" + "/status", requestData.toString());
             JsonObject responseObject = JsonParser.parseString(response).getAsJsonObject();
 
             LicenseStatus status = new LicenseStatus();
