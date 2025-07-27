@@ -21,7 +21,6 @@ public final class ConfigManager {
     private int softPayload;
     private int hardPayload;
     private int maxPayloadsPerTick;
-    private String itemAMessage;
 
     public int getInt(String path, int def) {
         return cfg.getInt(path, def);
@@ -92,10 +91,6 @@ public final class ConfigManager {
         return maxPayloadsPerTick;
     }
 
-
-    public String getItemAMessage() {
-        return itemAMessage;
-    }
 
     public String formatLog(String tpl, String p, String ck, String d, int cnt, int max) {
         return tpl.replace("{player}", p).replace("{check}", ck)
