@@ -11,9 +11,13 @@ import dev.astra.guard.config.ConfigManager;
 import dev.astra.guard.listeners.PlayerListener;
 import dev.astra.guard.utils.TaskUtil;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Objects;
 
 public final class Main extends JavaPlugin {
@@ -21,6 +25,7 @@ public final class Main extends JavaPlugin {
     private ConfigManager configManager;
     private AlertManager alertManager;
     private static Main instance;
+    private String version;
 
     @Override
     public void onLoad() {
@@ -32,6 +37,7 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        this.version = loadVersionFromPluginYml();
         new UpdateChecker(this).check();
         saveDefaultConfig();
         configManager = new ConfigManager(this);
@@ -129,6 +135,9 @@ public final class Main extends JavaPlugin {
     public void onDisable() {
         PacketEvents.getAPI().terminate();
     }
+    public String getPluginVersion() {
+        return version;
+    }
 
     public ConfigManager getConfigManager() {
         return configManager;
@@ -141,5 +150,17 @@ public final class Main extends JavaPlugin {
         return alertManager;
     }
 
-
+    private String loadVersionFromPluginYml() {
+        try (InputStream input = getResource("plugin.yml")) {
+            if (input == null) {
+                getLogger().warning("plugin.yml پیدا نشد!");
+                return "unknown";
+            }
+            YamlConfiguration config = YamlConfiguration.loadConfiguration(new InputStreamReader(input));
+            return config.getString("version", "unknown");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "unknown";
+        }
+    }
 }

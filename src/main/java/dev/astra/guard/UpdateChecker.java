@@ -1,8 +1,5 @@
 package dev.astra.guard;
 
-import dev.astra.guard.Main;
-
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -41,7 +38,8 @@ public class UpdateChecker {
         try {
             JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();
             String latestVersion = json.get("version").getAsString();
-            String currentVersion = plugin.getDescription().getVersion();
+            String currentVersion = plugin.getPluginVersion();
+
 
             if (!latestVersion.equalsIgnoreCase(currentVersion)) {
                 plugin.getLogger().warning("A new version of AstraGuard is available!");
