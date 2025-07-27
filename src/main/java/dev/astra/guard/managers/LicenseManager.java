@@ -25,7 +25,6 @@ public class LicenseManager {
     public boolean checkLicense(String licenseKey) {
         try {
             String serverIP = getServerIP();
-            plugin.getLogger().info("Checking license for IP: " + serverIP);
 
             JsonObject requestData = new JsonObject();
             requestData.addProperty("license", licenseKey);
@@ -42,7 +41,6 @@ public class LicenseManager {
                 return false;
             }
 
-            plugin.getLogger().info("License validation successful: " + message);
             return true;
 
         } catch (Exception e) {
