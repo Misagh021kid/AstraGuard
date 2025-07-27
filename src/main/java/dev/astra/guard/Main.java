@@ -1,6 +1,7 @@
 package dev.astra.guard;
 
 import com.github.retrooper.packetevents.PacketEvents;
+import dev.astra.guard.listeners.PacketLogger;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import dev.astra.guard.managers.LicenseManager;
 import dev.astra.guard.checks.CheckManager;
@@ -27,6 +28,8 @@ public final class Main extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        new PacketLogger(this).register();
+
         String licenseKey = getConfig().getString("license-key");
         if (licenseKey == null || licenseKey.isEmpty()) {
             getLogger().severe("No license key found in config.yml! Disabling plugin.");
