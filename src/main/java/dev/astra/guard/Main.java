@@ -153,7 +153,7 @@ public final class Main extends JavaPlugin {
     private String loadVersionFromPluginYml() {
         try (InputStream input = getResource("plugin.yml")) {
             if (input == null) {
-                getLogger().warning("plugin.yml پیدا نشد!");
+                getLogger().warning("plugin.yml not found inside the plugin JAR.");
                 return "unknown";
             }
             YamlConfiguration config = YamlConfiguration.loadConfiguration(new InputStreamReader(input));
