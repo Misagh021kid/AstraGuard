@@ -5,6 +5,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.cache.CacheLoader;
 import dev.astra.guard.Main;
 import dev.astra.guard.config.ConfigManager;
+import dev.astra.guard.managers.AlertManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -61,8 +62,10 @@ public final class TaskUtil {
         plugin.getLogger().warning(logMsg);
 
         Component alert = Component.text(logMsg);
+        AlertManager manager = plugin.getAlertManager();
         Bukkit.getOnlinePlayers().stream()
                 .filter(p -> p.hasPermission("astraguard.alerts"))
+                .filter(p -> manager.isEnabled(p.getUniqueId()))
                 .forEach(p -> p.sendMessage(alert));
 
         if (count >= max) {

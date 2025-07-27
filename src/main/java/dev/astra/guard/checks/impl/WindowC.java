@@ -10,30 +10,35 @@ import org.bukkit.entity.Player;
 
 public final class WindowC implements Check {
 
-    @Override public String name() { return "Window-C"; }
+    @Override
+    public String name() {
+        return "Window-C";
+    }
 
     @Override
     public void handle(PacketReceiveEvent event) {
         if (event.getServerVersion().isNewerThanOrEquals(ServerVersion.V_1_20_5)) return;
-        if (event.getPacketType() != PacketType.Play.Client.CLICK_WINDOW)         return;
+        if (event.getPacketType() != PacketType.Play.Client.CLICK_WINDOW) return;
 
-        Player player = event.getPlayer();
-        if (player == null) return;
+        // گرفتن پلیر با بررسی نوع
+        var obj = event.getPlayer();
+        if (!(obj instanceof Player player) || !player.isOnline()) return;
 
-        WrapperPlayClientClickWindow click = new WrapperPlayClientClickWindow(event);
+        var click = new WrapperPlayClientClickWindow(event);
 
-        int windowId = click.getWindowId();
-        int slot     = click.getSlot();
-        int button   = click.getButton();
+        var windowId = click.getWindowId();
+        var slot     = click.getSlot();
+        var button   = click.getButton();
+        var type     = click.getWindowClickType();
 
-        if (windowId < 0 || slot < -1 || button < 0 || click.getWindowClickType() == null) {
-            kick(player, event,
-                    "win="+windowId+", slot="+slot+", btn="+button+", type="+click.getWindowClickType());
+        if (windowId < 0 || slot < -999 || button < 0 || type == null) {
+            flag(player, event, "win=%d, slot=%d, btn=%d, type=%s"
+                    .formatted(windowId, slot, button, type));
         }
     }
 
-    private void kick(Player player, PacketReceiveEvent e, String detail) {
+    private void flag(Player player, PacketReceiveEvent event, String detail) {
         TaskUtil.flag(player, name(), detail);
-        e.setCancelled(true);
+        event.setCancelled(true);
     }
 }
