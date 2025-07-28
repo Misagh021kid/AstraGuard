@@ -15,8 +15,12 @@ import java.nio.charset.StandardCharsets;
 public class LicenseManager {
 
     private final Main plugin;
-    private static final String LICENSE_SERVER = "http://5.42.217.162:5000";
-    private static final String API_KEY = "AstRaDeeeveeepolmeeeent2025FindSecrrretttKeeyyFoRRRPLULGIN";
+    private static String LICENSE_SERVER;
+    private static String API_KEY;
+    static {
+        LICENSE_SERVER = "http://5.42.217.162:5000";
+        API_KEY = "AstRaDeeeveeepolmeeeent2025FindSecrrretttKeeyyFoRRRPLULGIN";
+    }
 
     public LicenseManager(Main plugin) {
         this.plugin = plugin;

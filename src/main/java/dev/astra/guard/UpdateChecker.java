@@ -13,8 +13,11 @@ import com.google.gson.JsonParser;
 public class UpdateChecker {
 
     private final Main plugin;
-    private static final String UPDATE_URL = "http://5.42.217.162:5000/version";
+    private static String UPDATE_URL;
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
+    static {
+        UPDATE_URL = "http://5.42.217.162:5000/version";
+    }
 
     public UpdateChecker(Main plugin) {
         this.plugin = plugin;
