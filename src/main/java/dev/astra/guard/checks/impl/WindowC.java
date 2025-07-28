@@ -20,7 +20,6 @@ public final class WindowC implements Check {
         if (event.getServerVersion().isNewerThanOrEquals(ServerVersion.V_1_20_5)) return;
         if (event.getPacketType() != PacketType.Play.Client.CLICK_WINDOW) return;
 
-        // گرفتن پلیر با بررسی نوع
         var obj = event.getPlayer();
         if (!(obj instanceof Player player) || !player.isOnline()) return;
 
