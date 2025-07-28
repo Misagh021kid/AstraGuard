@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 import com.google.gson.JsonObject;
@@ -19,13 +20,13 @@ public class UpdateChecker {
         this.plugin = plugin;
     }
 
-    public void check() {
+    public CompletableFuture<Void> check() {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(UPDATE_URL))
                 .header("Accept", "application/json")
                 .build();
 
-        CLIENT.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+        return CLIENT.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)
                 .thenAccept(this::handleResponse)
                 .exceptionally(ex -> {
