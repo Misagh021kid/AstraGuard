@@ -13,48 +13,46 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
 
+
 public final class FloodA implements Check {
 
-    private static final int MAX_LEN = 300;
-    private static final int MAX_BURST = 5;
+    private static final int MAX_LEN   = 512;
+    private static final int MAX_BURST = 3;
 
-    private static final Cache<UUID, LongAdder> BURST = CacheBuilder.newBuilder()
-            .expireAfterWrite(1, TimeUnit.SECONDS)
-            .concurrencyLevel(Runtime.getRuntime().availableProcessors())
-            .build();
+    private static final Cache<UUID, LongAdder> BURST =
+            CacheBuilder.newBuilder()
+                    .expireAfterWrite(1, TimeUnit.SECONDS)
+                    .concurrencyLevel(Runtime.getRuntime().availableProcessors())
+                    .build();
 
-    @Override
-    public String name() {
-        return "Flood-A";
-    }
+    @Override public String name() { return "Flood-A"; }
 
     @Override
     public void handle(PacketReceiveEvent event) {
         if (event.getPacketType() != PacketType.Play.Client.TAB_COMPLETE) return;
 
-        var player = (Player) event.getPlayer();
-        if (player == null || !player.isOnline()) return;
+        Player player = event.getPlayer();
+        if (player == null) return;
 
-        var wrapper = new WrapperPlayClientTabComplete(event);
-        var cmd = wrapper.getText();
-
-        if (cmd == null || cmd.isBlank()) return;
+        WrapperPlayClientTabComplete wrapper = new WrapperPlayClientTabComplete(event);
+        String cmd = wrapper.getText();
 
         if (cmd.length() > MAX_LEN) {
-            flag(player, event, "TooLong len=%d".formatted(cmd.length()));
+            flag(player, event, "len=" + cmd.length());
             return;
         }
 
-        var counter = BURST.asMap().computeIfAbsent(player.getUniqueId(), id -> new LongAdder());
+        LongAdder counter = BURST.getIfPresent(player.getUniqueId());
+        if (counter == null) { counter = new LongAdder(); BURST.put(player.getUniqueId(), counter); }
         counter.increment();
 
         if (counter.intValue() > MAX_BURST) {
-            flag(player, event, "TooFast burst=%d".formatted(counter.intValue()));
+            flag(player, event, "burst=" + counter.intValue());
         }
     }
 
-    private static void flag(Player player, PacketReceiveEvent event, String detail) {
-        TaskUtil.flag(player, "Flood-A", detail);
-        event.setCancelled(true);
+    private static void flag(Player p, PacketReceiveEvent e, String detail) {
+        TaskUtil.flag(p, "Flood-A", detail);
+        e.setCancelled(true);
     }
 }
