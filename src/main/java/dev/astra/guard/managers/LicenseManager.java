@@ -3,7 +3,6 @@ package dev.astra.guard.managers;
 import dev.astra.guard.Main;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -15,7 +14,9 @@ import java.nio.charset.StandardCharsets;
 public class LicenseManager {
 
     private final Main plugin;
+    @SuppressWarnings("FieldMayBeFinal")
     private static String LICENSE_SERVER;
+    @SuppressWarnings("FieldMayBeFinal")
     private static String API_KEY;
     static {
         LICENSE_SERVER = "http://5.42.217.162:5000";
@@ -141,7 +142,7 @@ public class LicenseManager {
 
     private String getPublicIP() {
         try {
-            URL url = new URL("http://ipv4.icanhazip.com");
+            URL url = new URL("https://ipv4.icanhazip.com/");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.setConnectTimeout(5000);

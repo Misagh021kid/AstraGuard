@@ -13,6 +13,7 @@ import com.google.gson.JsonParser;
 public class UpdateChecker {
 
     private final Main plugin;
+    @SuppressWarnings("FieldMayBeFinal")
     private static String UPDATE_URL;
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
     static {

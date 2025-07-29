@@ -28,7 +28,7 @@ public final class BundleA implements Check {
                 flag(player, e, "index="+idx);
             }
         } catch (IllegalArgumentException ex) {
-            flag(player, e, "malformed packet"+ " ");
+            flag(player, e, "malformed packet" + " ");
         }
     }
 

@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
 
 public final class TaskUtil {
+
     private static Main plugin;
     private static LoadingCache<UUID, LongAdder> violations;
 
@@ -50,11 +51,20 @@ public final class TaskUtil {
     }
 
     public static void flag(Player player, String check, String detail) {
+        if (plugin == null || violations == null) return;
+
         ConfigManager cfg = plugin.getConfigManager();
         int max = cfg.getMaxViolations();
         UUID uuid = player.getUniqueId();
 
-        LongAdder counter = violations.getUnchecked(uuid);
+        LongAdder counter;
+        try {
+            counter = violations.get(uuid);
+        } catch (Exception e) {
+            plugin.getLogger().severe("Failed to load violation counter for " + player.getName());
+            return;
+        }
+
         counter.increment();
         int count = counter.intValue();
 
