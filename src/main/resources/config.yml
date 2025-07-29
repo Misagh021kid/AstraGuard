@@ -20,3 +20,4 @@ messages:
   kick: "<red>AstraGuard: Crash attempt detected <gray>({check})"
   flag-log: "{player} flagged by {check} ({detail}) [{count}/{max}]"
 
+

@@ -6,6 +6,8 @@ import com.google.common.cache.CacheLoader;
 import dev.astra.guard.Main;
 import dev.astra.guard.config.ConfigManager;
 import dev.astra.guard.managers.AlertManager;
+import dev.astra.guard.webhook.WebhookConfig;
+import dev.astra.guard.webhook.WebhookUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -78,12 +80,16 @@ public final class TaskUtil {
                 .filter(p -> manager.isEnabled(p.getUniqueId()))
                 .forEach(p -> p.sendMessage(alert));
 
+
+        WebhookUtil.sendCheckTriggeredWebhook(player.getName(), check, detail,count,max);
+
         if (count >= max) {
             violations.invalidate(uuid);
             runSync(() -> {
                 if (player.isOnline()) {
                     String kickMsg = cfg.getKickMessage().replace("{check}", check);
                     player.kick(Component.text(kickMsg));
+                    WebhookUtil.sendPlayerKickedWebhook(player.getName(),check,detail);
                 }
             });
         }

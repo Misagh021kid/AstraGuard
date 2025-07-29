@@ -9,12 +9,14 @@ import dev.astra.guard.checks.CheckManager;
 import dev.astra.guard.config.ConfigManager;
 import dev.astra.guard.listeners.PlayerListener;
 import dev.astra.guard.utils.TaskUtil;
+import dev.astra.guard.webhook.WebhookConfig;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Objects;
@@ -61,8 +63,13 @@ public final class Main extends JavaPlugin {
     }
 
     private void initManagers() {
+        File file = new File(getDataFolder(), "webhook.yml");
+        if (!file.exists()) {
+            saveResource("webhook.yml", false);
+        }
         configManager = new ConfigManager(this);
         configManager.init();
+        WebhookConfig.load(getDataFolder());
 
         alertManager = new AlertManager(this);
         checkManager = new CheckManager();
