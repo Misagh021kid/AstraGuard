@@ -21,6 +21,10 @@ public final class ConfigManager {
     private int softPayload;
     private int hardPayload;
     private int maxPayloadsPerTick;
+    private int maxBookPages;
+    private int maxCharsPerPage;
+    private int maxMapSize;
+    private int maxTotalNbtBytes;
 
     public int getInt(String path, int def) {
         return cfg.getInt(path, def);
@@ -56,6 +60,10 @@ public final class ConfigManager {
         softPayload = cfg.getInt("netty.payload.soft", 262_144);
         hardPayload = cfg.getInt("netty.payload.hard", 1_048_576);
         maxPayloadsPerTick = cfg.getInt("netty.payload.maxPerTick", 50);
+        maxBookPages         = cfg.getInt("netty.windowClickGuard.book.maxPages", 20);
+        maxCharsPerPage      = cfg.getInt("netty.windowClickGuard.book.maxCharsPerPage", 1024);
+        maxMapSize           = cfg.getInt("netty.windowClickGuard.book.maxMapSize", 50);
+        maxTotalNbtBytes     = cfg.getInt("netty.windowClickGuard.book.maxTotalNbtBytes", 200_000);
     }
 
     private String toLegacy(String s) {
@@ -90,6 +98,10 @@ public final class ConfigManager {
     public int getMaxPayloadsPerTick() {
         return maxPayloadsPerTick;
     }
+    public int getMaxBookPages()      { return maxBookPages; }
+    public int getMaxCharsPerPage()   { return maxCharsPerPage; }
+    public int getMaxMapSize()        { return maxMapSize; }
+    public int getMaxTotalNbtBytes()  { return maxTotalNbtBytes; }
 
 
     public String formatLog(String tpl, String p, String ck, String d, int cnt, int max) {
