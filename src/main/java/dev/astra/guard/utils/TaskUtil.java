@@ -67,10 +67,23 @@ public final class TaskUtil {
             return;
         }
 
-        counter.increment();
-        int count = counter.intValue();
+        int rawCount = counter.intValue();
+        // only increment if we're below max
+        if (rawCount < max) {
+            counter.increment();
+            rawCount++;
+        }
 
-        String logMsg = cfg.formatLog(cfg.getFlagLogFormat(), player.getName(), check, detail, count, max);
+        int displayCount = rawCount; // now always ≤ max
+
+        String logMsg = cfg.formatLog(
+                cfg.getFlagLogFormat(),
+                player.getName(),
+                check,
+                detail,
+                displayCount,
+                max
+        );
         plugin.getLogger().warning(logMsg);
 
         Component alert = Component.text(logMsg);
@@ -80,19 +93,19 @@ public final class TaskUtil {
                 .filter(p -> manager.isEnabled(p.getUniqueId()))
                 .forEach(p -> p.sendMessage(alert));
 
+        WebhookUtil.sendCheckTriggeredWebhook(player.getName(), check, detail, displayCount, max);
 
-        WebhookUtil.sendCheckTriggeredWebhook(player.getName(), check, detail,count,max);
-
-        if (count >= max) {
+        if (rawCount >= max) {
             runSync(() -> {
                 if (player.isOnline()) {
                     String kickMsg = cfg.getKickMessage().replace("{check}", check);
                     player.kick(Component.text(kickMsg));
-                    WebhookUtil.sendPlayerKickedWebhook(player.getName(),check,detail);
+                    WebhookUtil.sendPlayerKickedWebhook(player.getName(), check, detail);
                 }
             });
         }
     }
+
 
     public void reloadConfig() {
         loadCache();
