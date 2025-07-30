@@ -6,6 +6,8 @@ import com.google.common.cache.CacheLoader;
 import dev.astra.guard.Main;
 import dev.astra.guard.config.ConfigManager;
 import dev.astra.guard.managers.AlertManager;
+import dev.astra.guard.webhook.WebhookConfig;
+import dev.astra.guard.webhook.WebhookUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -16,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
 
 public final class TaskUtil {
+
     private static Main plugin;
     private static LoadingCache<UUID, LongAdder> violations;
 
@@ -50,11 +53,20 @@ public final class TaskUtil {
     }
 
     public static void flag(Player player, String check, String detail) {
+        if (plugin == null || violations == null) return;
+
         ConfigManager cfg = plugin.getConfigManager();
         int max = cfg.getMaxViolations();
         UUID uuid = player.getUniqueId();
 
-        LongAdder counter = violations.getUnchecked(uuid);
+        LongAdder counter;
+        try {
+            counter = violations.get(uuid);
+        } catch (Exception e) {
+            plugin.getLogger().severe("Failed to load violation counter for " + player.getName());
+            return;
+        }
+
         counter.increment();
         int count = counter.intValue();
 
@@ -68,11 +80,15 @@ public final class TaskUtil {
                 .filter(p -> manager.isEnabled(p.getUniqueId()))
                 .forEach(p -> p.sendMessage(alert));
 
+
+        WebhookUtil.sendCheckTriggeredWebhook(player.getName(), check, detail,count,max);
+
         if (count >= max) {
             runSync(() -> {
                 if (player.isOnline()) {
                     String kickMsg = cfg.getKickMessage().replace("{check}", check);
                     player.kick(Component.text(kickMsg));
+                    WebhookUtil.sendPlayerKickedWebhook(player.getName(),check,detail);
                 }
             });
         }
