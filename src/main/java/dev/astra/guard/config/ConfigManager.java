@@ -55,8 +55,8 @@ public final class ConfigManager {
         violationResetMinutes = cfg.getLong("violations.reset-minutes", 10);
         kickMessage = toLegacy(cfg.getString("messages.kick",
                 "<red>AstraGuard: Crash attempt detected <gray>({check})"));
-        flagLogFormat = cfg.getString("messages.flag-log",
-                "{player} flagged by {check} ({detail}) [{count}/{max}]");
+        flagLogFormat = toLegacy(cfg.getString("messages.flag-log",
+                "{player} flagged by {check} ({detail}) [{count}/{max}]"));
         softPayload = cfg.getInt("netty.payload.soft", 262_144);
         hardPayload = cfg.getInt("netty.payload.hard", 1_048_576);
         maxPayloadsPerTick = cfg.getInt("netty.payload.maxPerTick", 50);

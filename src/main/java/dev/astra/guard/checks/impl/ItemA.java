@@ -82,16 +82,20 @@ public final class ItemA implements Check {
 
                 if (bukkitItem.hasItemMeta()) {
                     ItemMeta meta = bukkitItem.getItemMeta();
-                    if (meta != null && meta.lore() != null) {
-                        List<net.kyori.adventure.text.Component> lore = meta.lore();
-                        net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer plain = net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText();
-                        if (lore != null) {
-                            boolean tooManyLines = lore.size() > 30;
-                            boolean tooLongLine = lore.stream().anyMatch(line -> plain.serialize(line).length() > 150);
+                    if (meta != null) {
+                        try {
+                            List<net.kyori.adventure.text.Component> lore = meta.lore();
+                            net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer plain = net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText();
+                            if (lore != null) {
+                                boolean tooManyLines = lore.size() > 30;
+                                boolean tooLongLine = lore.stream().anyMatch(line -> plain.serialize(line).length() > 150);
 
-                            if (tooManyLines || tooLongLine) {
-                                kick(p,e, "tooManyLines: " + (tooManyLines ? "lines" : "length"));
+                                if (tooManyLines || tooLongLine) {
+                                    kick(p,e, "tooManyLines: " + (tooManyLines ? "lines" : "length"));
+                                }
                             }
+                        } catch (Exception ex) {
+                            kick(p, e, "Invalid item lore JSON");
                         }
                     }
                 }

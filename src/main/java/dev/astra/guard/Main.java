@@ -51,7 +51,7 @@ public final class Main extends JavaPlugin {
         registerCommands();
         registerListeners();
         startLicenseChecker();
-        TaskUtil taskUtil = new TaskUtil(this);
+        new TaskUtil(this);
 
         PacketEvents.getAPI().init();
         getLogger().info("AstraGuard v" + version + " enabled successfully.");
