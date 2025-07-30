@@ -69,7 +69,6 @@ public final class TaskUtil {
                 .forEach(p -> p.sendMessage(alert));
 
         if (count >= max) {
-            violations.invalidate(uuid);
             runSync(() -> {
                 if (player.isOnline()) {
                     String kickMsg = cfg.getKickMessage().replace("{check}", check);
