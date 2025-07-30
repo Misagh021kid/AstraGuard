@@ -51,7 +51,7 @@ public final class NettyC implements Check {
 
         bursts = CacheBuilder.newBuilder()
                 .expireAfterWrite(50, TimeUnit.MILLISECONDS)
-                .build(new CacheLoader<>() {
+                .build(new CacheLoader<UUID, LongAdder>() {
                     @Override
                     public LongAdder load(UUID key) {
                         return new LongAdder();
@@ -59,7 +59,7 @@ public final class NettyC implements Check {
                 });
         strikes = CacheBuilder.newBuilder()
                 .expireAfterWrite(10, TimeUnit.MINUTES)
-                .build(new CacheLoader<>() {
+                .build(new CacheLoader<UUID, LongAdder>() {
                     @Override
                     public LongAdder load(UUID key) {
                         return new LongAdder();
@@ -94,51 +94,50 @@ public final class NettyC implements Check {
         if (tag == null) return;
 
         NBTList<NBTCompound> pages = tag.getCompoundListTagOrNull("pages");
-        int pageCount = (pages != null) ? pages.getTags().size() : 0;
-        if (pageCount > MAX_BOOK_PAGES) {
-            flag(player, ev, "pages=" + pageCount);
-            return;
-        }
-
-        int totalBytes = 0;
-        for (NBTCompound page : pages.getTags()) {
-            String text = page.toString();
-            int charLen = text.length();
-            if (charLen > MAX_CHARS_PER_PAGE) {
-                flag(player, ev, "chars=" + charLen);
+        if (pages != null) {
+            int pageCount = pages.getTags().size();
+            if (pageCount > MAX_BOOK_PAGES) {
+                flag(player, ev, "pages=" + pageCount);
                 return;
             }
-            totalBytes += text.getBytes(StandardCharsets.UTF_8).length;
+            int totalBytes = 0;
+            for (NBTCompound page : pages.getTags()) {
+                String text = page.toString();
+                int len = text.length();
+                if (len > MAX_CHARS_PER_PAGE) {
+                    flag(player, ev, "chars=" + len);
+                    return;
+                }
+                totalBytes += text.getBytes(StandardCharsets.UTF_8).length;
+            }
+            Map<Integer, ?> slots = pkt.getSlots().orElse(Collections.emptyMap());
+            if (slots.size() > MAX_MAP_SIZE) {
+                flag(player, ev, "map=" + slots.size());
+                return;
+            }
+            if (totalBytes > MAX_TOTAL_NBT_BYTES) {
+                flag(player, ev, "nbtBytes=" + totalBytes);
+                return;
+            }
+            if (totalBytes >= HARD_BYTES) {
+                flag(player, ev, "nbt=" + totalBytes);
+                return;
+            }
+            if (totalBytes >= SOFT_BYTES) {
+                LongAdder strikeCounter = strikes.getUnchecked(uid);
+                strikeCounter.increment();
+                int s = strikeCounter.intValue();
+                flag(player, ev, "nbt=" + totalBytes + " [" + s + "/" + MAX_STRIKES + "]");
+                return;
+            }
         }
 
-        Map<Integer, ?> slotMap = pkt.getSlots().orElse(Collections.emptyMap());
-        if (slotMap.size() > MAX_MAP_SIZE) {
-            flag(player, ev, "map=" + slotMap.size());
-            return;
-        }
-
-        if (totalBytes > MAX_TOTAL_NBT_BYTES) {
-            flag(player, ev, "nbtBytes=" + totalBytes);
-            return;
-        }
-
-        boolean beeBomb = false;
         NBTCompound block = tag.getCompoundTagOrNull("BlockEntityTag");
         if (block != null) {
             NBTList<NBTCompound> bees = block.getCompoundListTagOrNull("Bees");
-            beeBomb = bees != null && bees.getTags().size() > MAX_BEES;
-        }
-
-        if (totalBytes >= HARD_BYTES || beeBomb) {
-            flag(player, ev, "nbt=" + totalBytes + " bees=" + beeBomb);
-            return;
-        }
-
-        if (totalBytes >= SOFT_BYTES) {
-            LongAdder strikeCounter = strikes.getUnchecked(uid);
-            strikeCounter.increment();
-            int s = strikeCounter.intValue();
-            flag(player, ev, "nbt=" + totalBytes + " [" + s + "/" + MAX_STRIKES + "]");
+            if (bees != null && bees.getTags().size() > MAX_BEES) {
+                flag(player, ev, "bees=" + bees.getTags().size());
+            }
         }
     }
 
