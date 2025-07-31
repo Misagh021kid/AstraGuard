@@ -72,39 +72,48 @@ public final class TaskUtil {
             rawCount++;
         }
 
-        int displayCount = rawCount;
+        if (rawCount >= max) {
+            violations.invalidate(uuid);
+
+            String logMsg = cfg.formatLog(
+                    cfg.getFlagLogFormat(),
+                    player.getName(), check, detail,
+                    max, max
+            );
+            plugin.getLogger().warning(logMsg);
+            Component alert = Component.text(logMsg);
+            AlertManager manager = plugin.getAlertManager();
+            Bukkit.getOnlinePlayers().stream()
+                    .filter(p -> p.hasPermission("astraguard.alerts"))
+                    .filter(p -> manager.isEnabled(p.getUniqueId()))
+                    .forEach(p -> p.sendMessage(alert));
+
+            WebhookUtil.sendPlayerKickedWebhook(player.getName(), check, detail);
+
+            runSync(() -> {
+                if (player.isOnline()) {
+                    String kickMsg = cfg.getKickMessage().replace("{check}", check);
+                    player.kick(Component.text(kickMsg));
+                }
+            });
+            return;
+        }
 
         String logMsg = cfg.formatLog(
                 cfg.getFlagLogFormat(),
-                player.getName(),
-                check,
-                detail,
-                displayCount,
-                max
+                player.getName(), check, detail,
+                rawCount, max
         );
         plugin.getLogger().warning(logMsg);
-
         Component alert = Component.text(logMsg);
         AlertManager manager = plugin.getAlertManager();
         Bukkit.getOnlinePlayers().stream()
                 .filter(p -> p.hasPermission("astraguard.alerts"))
                 .filter(p -> manager.isEnabled(p.getUniqueId()))
                 .forEach(p -> p.sendMessage(alert));
-
-        WebhookUtil.sendCheckTriggeredWebhook(player.getName(), check, detail, displayCount, max);
-
-        if (rawCount >= max) {
-            runSync(() -> {
-                if (player.isOnline()) {
-                    String kickMsg = cfg.getKickMessage().replace("{check}", check);
-                    player.kick(Component.text(kickMsg));
-                    WebhookUtil.sendPlayerKickedWebhook(player.getName(), check, detail);
-
-                    violations.invalidate(uuid);
-                }
-            });
-        }
+        WebhookUtil.sendCheckTriggeredWebhook(player.getName(), check, detail, rawCount, max);
     }
+
 
 
     public void reloadConfig() {
