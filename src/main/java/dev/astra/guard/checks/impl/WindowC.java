@@ -20,7 +20,6 @@ public final class WindowC implements Check {
         var obj = event.getPlayer();
         if (!(obj instanceof Player player) || !player.isOnline()) return;
 
-        /* any of the three exceptions means bad / unsupported data */
         WrapperPlayClientClickWindow click;
         try {
             click = new WrapperPlayClientClickWindow(event);

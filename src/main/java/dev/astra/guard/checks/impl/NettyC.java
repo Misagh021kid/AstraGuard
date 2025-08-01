@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.LongAdder;
 
 public final class NettyC implements Check {
 
-    // ---------------------- configuration ----------------------
     private final int MAX_BURST;
     private final int SOFT_BYTES;
     private final int HARD_BYTES;
@@ -34,7 +33,6 @@ public final class NettyC implements Check {
     private final int MAX_MAP_SIZE;
     private final int MAX_TOTAL_NBT_BYTES;
 
-    // ------------------------- caches -------------------------
     private final LoadingCache<UUID, LongAdder> bursts;
     private final LoadingCache<UUID, LongAdder> strikes;
 
@@ -73,7 +71,6 @@ public final class NettyC implements Check {
         if (player == null) return;
         UUID uid = player.getUniqueId();
 
-        // ---------------- burst-rate limiter ----------------
         LongAdder burstCounter = bursts.getUnchecked(uid);
         burstCounter.increment();
         if (burstCounter.intValue() > MAX_BURST) {
@@ -81,11 +78,10 @@ public final class NettyC implements Check {
             return;
         }
 
-        // ---------------- safe wrapper construction ---------
         WrapperPlayClientClickWindow pkt;
         try {
             pkt = new WrapperPlayClientClickWindow(ev);
-        } catch (IllegalStateException ex) {     // malformed NBT / protocol mismatch
+        } catch (IllegalStateException ex) {
             flag(player, ev, "malformed or unsupported NBT");
             return;
         }
@@ -96,7 +92,6 @@ public final class NettyC implements Check {
         NBTCompound tag = stack.getNBT();
         if (tag == null) return;
 
-        // ---------------- book / pages checks ---------------
         NBTList<NBTCompound> pages = tag.getCompoundListTagOrNull("pages");
         if (pages != null) {
             int pageCount = pages.getTags().size();
@@ -138,7 +133,6 @@ public final class NettyC implements Check {
             }
         }
 
-        // ---------------- hive-bees check -------------------
         NBTCompound block = tag.getCompoundTagOrNull("BlockEntityTag");
         if (block != null) {
             NBTList<NBTCompound> bees = block.getCompoundListTagOrNull("Bees");
@@ -148,14 +142,12 @@ public final class NettyC implements Check {
         }
     }
 
-    // ---------------- helper utilities ----------------------
 
     private void flag(Player p, PacketReceiveEvent e, String detail) {
         TaskUtil.flag(p, name(), detail);
         e.setCancelled(true);
     }
 
-    /** tiny cache-loader helper */
     private static final class LongAdderLoader extends CacheLoader<UUID, LongAdder> {
         @Override
         public @NotNull LongAdder load(@NotNull UUID key) {
