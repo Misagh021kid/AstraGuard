@@ -80,7 +80,8 @@ public final class TaskUtil {
                     player.getName(), check, detail,
                     max, max
             );
-            plugin.getLogger().warning(logMsg);
+            String plainLogMsg = logMsg.replaceAll("§.", "");
+            plugin.getLogger().warning(plainLogMsg);
             Component alert = Component.text(logMsg);
             AlertManager manager = plugin.getAlertManager();
             Bukkit.getOnlinePlayers().stream()
@@ -104,7 +105,8 @@ public final class TaskUtil {
                 player.getName(), check, detail,
                 rawCount, max
         );
-        plugin.getLogger().warning(logMsg);
+        String plainLogMsg = logMsg.replaceAll("§.", "");
+        plugin.getLogger().warning(plainLogMsg);
         Component alert = Component.text(logMsg);
         AlertManager manager = plugin.getAlertManager();
         Bukkit.getOnlinePlayers().stream()

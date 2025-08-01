@@ -6,7 +6,6 @@ bot:
   avatar_url: "https://i.imgur.com/kl6V4bM.png"
 
 colors:
-  join: "0x2ecc71"
   kick: "0xff0000"
   check: "0xffa500"
 

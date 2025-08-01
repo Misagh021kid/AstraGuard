@@ -60,7 +60,7 @@ public class AstraCommand implements CommandExecutor {
     private boolean handleToggleAlerts(CommandSender sender) {
         if (!(sender instanceof Player player)) {
             sender.sendMessage(Component.text("Only players can toggle alerts.", NamedTextColor.YELLOW));
-            return true;
+            return false;
         }
 
         boolean enabled = alertManager.toggle(player.getUniqueId());

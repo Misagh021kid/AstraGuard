@@ -10,20 +10,24 @@ import org.bukkit.entity.Player;
 
 public final class WindowC implements Check {
 
-    @Override
-    public String name() {
-        return "Window-C";
-    }
+    @Override public String name() { return "Window-C"; }
 
     @Override
     public void handle(PacketReceiveEvent event) {
         if (event.getServerVersion().isNewerThanOrEquals(ServerVersion.V_1_20_5)) return;
-        if (event.getPacketType() != PacketType.Play.Client.CLICK_WINDOW) return;
+        if (event.getPacketType() != PacketType.Play.Client.CLICK_WINDOW)        return;
 
         var obj = event.getPlayer();
         if (!(obj instanceof Player player) || !player.isOnline()) return;
 
-        var click = new WrapperPlayClientClickWindow(event);
+        /* any of the three exceptions means bad / unsupported data */
+        WrapperPlayClientClickWindow click;
+        try {
+            click = new WrapperPlayClientClickWindow(event);
+        } catch (IllegalStateException | IllegalArgumentException ex) {
+            flag(player, event, "malformed or unsupported NBT / item-ID");
+            return;
+        }
 
         var windowId = click.getWindowId();
         var slot     = click.getSlot();
@@ -31,8 +35,8 @@ public final class WindowC implements Check {
         var type     = click.getWindowClickType();
 
         if (windowId < 0 || slot < -999 || button < 0 || type == null) {
-            flag(player, event, "win=%d, slot=%d, btn=%d, type=%s"
-                    .formatted(windowId, slot, button, type));
+            flag(player, event,
+                    "win=%d, slot=%d, btn=%d, type=%s".formatted(windowId, slot, button, type));
         }
     }
 

@@ -1,16 +1,13 @@
 package dev.astra.guard.managers;
 
-import dev.astra.guard.Main;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class AlertManager {
     private final Set<UUID> toggled;
-    private final Main plugin;
 
-    public AlertManager(Main plugin) {
-        this.plugin = plugin;
+    public AlertManager() {
         this.toggled = ConcurrentHashMap.newKeySet();
     }
 

@@ -71,7 +71,7 @@ public final class Main extends JavaPlugin {
         configManager.init();
         WebhookConfig.load(getDataFolder());
 
-        alertManager = new AlertManager(this);
+        alertManager = new AlertManager();
         checkManager = new CheckManager();
     }
 

@@ -17,26 +17,39 @@ public final class WindowA implements Check {
 
     @Override
     public void handle(PacketReceiveEvent e) {
+        // this check matters only for ≤ 1.20.4 — later versions fixed the exploit
         if (e.getServerVersion().isNewerThanOrEquals(ServerVersion.V_1_20_5)) return;
         if (e.getPacketType() != PacketType.Play.Client.CLICK_WINDOW)         return;
 
         Player player = e.getPlayer();
         if (player == null) return;
 
-        WrapperPlayClientClickWindow click = new WrapperPlayClientClickWindow(e);
+        /* ------------------------------------------------------------------
+         *  SAFETY WRAPPER:  any malformed NBT (or protocol mismatch) inside
+         *  the carried ItemStack can throw IllegalStateException(IOEx…).
+         * ------------------------------------------------------------------ */
+        WrapperPlayClientClickWindow click;
+        try {
+            click = new WrapperPlayClientClickWindow(e);
+        } catch (IllegalStateException ex) {
+            // bad data → flag & cancel instead of crashing Netty thread
+            flag(player, e, "malformed or unsupported NBT");
+            return;
+        }
 
         int clickType = click.getWindowClickType().ordinal();
         int button    = click.getButton();
         int windowId  = click.getWindowId();
 
+        // exploit pattern: swap / drop (type 1 | 2) with negative button
         if ((clickType == 1 || clickType == 2) && windowId >= 0 && button < 0) {
-            kick(player, e,
-                    "type=" + clickType + ", win=" + windowId + ", btn=" + button);
+            flag(player, e, "type=" + clickType + ", win=" + windowId + ", btn=" + button);
         }
     }
 
-    private void kick(Player player, PacketReceiveEvent e, String detail) {
-        TaskUtil.flag(player, name(), detail);
-        e.setCancelled(true);
+    /* ---------------------- helpers ----------------------- */
+    private void flag(Player p, PacketReceiveEvent ev, String detail) {
+        TaskUtil.flag(p, name(), detail);
+        ev.setCancelled(true);
     }
 }
