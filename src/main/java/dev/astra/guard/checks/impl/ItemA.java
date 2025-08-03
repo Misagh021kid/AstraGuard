@@ -32,7 +32,13 @@ public final class ItemA implements Check {
 
 
         if (e.getPacketType() == PacketType.Play.Client.EDIT_BOOK) {
-            WrapperPlayClientEditBook editBook = new WrapperPlayClientEditBook(e);
+            WrapperPlayClientEditBook editBook;
+            try {
+                editBook = new WrapperPlayClientEditBook(e);
+            } catch (Exception ex) {
+                kick(player, e, "malformed or unsupported");
+                return;
+            }
             String title = editBook.getTitle();
             List<String> pages = editBook.getPages();
 

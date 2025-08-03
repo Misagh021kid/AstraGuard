@@ -71,18 +71,21 @@ public final class NettyC implements Check {
         if (player == null) return;
         UUID uid = player.getUniqueId();
 
-        LongAdder burstCounter = bursts.getUnchecked(uid);
-        burstCounter.increment();
-        if (burstCounter.intValue() > MAX_BURST) {
-            flag(player, ev, "burst>" + MAX_BURST);
-            return;
-        }
-
         WrapperPlayClientClickWindow pkt;
         try {
             pkt = new WrapperPlayClientClickWindow(ev);
         } catch (IllegalStateException ex) {
             flag(player, ev, "malformed or unsupported NBT");
+            return;
+        }
+        if (pkt.getWindowClickType() == WrapperPlayClientClickWindow.WindowClickType.QUICK_MOVE) {
+            return;
+        }
+
+        LongAdder burstCounter = bursts.getUnchecked(uid);
+        burstCounter.increment();
+        if (burstCounter.intValue() > MAX_BURST) {
+            flag(player, ev, "burst>" + MAX_BURST);
             return;
         }
 

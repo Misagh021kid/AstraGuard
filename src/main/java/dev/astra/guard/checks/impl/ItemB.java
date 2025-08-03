@@ -20,7 +20,14 @@ public final class ItemB implements Check {
             return;
         }
 
-        WrapperPlayClientPickItem pickItem = new WrapperPlayClientPickItem(e);
+        WrapperPlayClientPickItem pickItem;
+        try {
+            pickItem = new WrapperPlayClientPickItem(e);
+        } catch (Exception ex) {
+            Player p = e.getPlayer();
+            kick(p, e, "malformed or unsupported");
+            return;
+        }
         int slot = pickItem.getSlot();
         if (slot < 0) {
             Player player = e.getPlayer();
