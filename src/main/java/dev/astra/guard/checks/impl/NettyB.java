@@ -25,7 +25,7 @@ public final class NettyB implements Check {
         String channel = msg.getChannelName();
         byte[] data = msg.getData();
 
-        if (channel.length() > 128 || !channel.matches("[\\w:./-]+")) {
+        if (channel.length() > 16 && !channel.matches("[\\w:./-]+")) {
             kick(player, e, "bad-channel" + " ");
             return;
         }
