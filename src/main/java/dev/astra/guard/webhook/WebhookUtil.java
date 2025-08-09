@@ -27,11 +27,9 @@ public class WebhookUtil {
                     WebhookPayload payload = queue.take();
                     long now = System.currentTimeMillis();
                     long waitTime = COOLDOWN_MS - (now - lastSent);
-                    if (waitTime > 0) Thread.sleep(waitTime);
-
+                    if (waitTime > 0) TimeUnit.MILLISECONDS.sleep(waitTime);
                     sendNow(payload);
                     lastSent = System.currentTimeMillis();
-
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
@@ -44,39 +42,33 @@ public class WebhookUtil {
 
     public static void sendPlayerKickedWebhook(String playerName, String checkName, String reason) {
         if (!WebhookConfig.enabled) return;
-
         String description = String.join("\n", WebhookConfig.kickDescription)
                 .replace("%player%", playerName)
                 .replace("%check%", checkName)
                 .replace("%reason%", reason);
-
         Embed embed = new Embed(
                 WebhookConfig.kickTitle,
                 description,
                 WebhookConfig.kickColor,
                 Instant.now().toString()
         );
-
         enqueue(embed);
     }
 
     public static void sendCheckTriggeredWebhook(String playerName, String checkName, String details, int count, int max) {
         if (!WebhookConfig.enabled) return;
-
         String description = String.join("\n", WebhookConfig.checkDescription)
                 .replace("%player%", playerName)
                 .replace("%check%", checkName)
                 .replace("%details%", details)
                 .replace("%count%", String.valueOf(count))
                 .replace("%max%", String.valueOf(max));
-
         Embed embed = new Embed(
                 WebhookConfig.checkTitle,
                 description,
                 WebhookConfig.checkColor,
                 Instant.now().toString()
         );
-
         enqueue(embed);
     }
 
@@ -86,18 +78,18 @@ public class WebhookUtil {
                 WebhookConfig.botAvatarUrl,
                 Collections.singletonList(embed)
         );
-        queue.offer(payload);
+        if (!queue.offer(payload)) {
+            System.err.println("❌ Failed to enqueue webhook payload (queue full)");
+        }
     }
 
     private static void sendNow(WebhookPayload payload) {
         String json = gson.toJson(payload);
-
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(WebhookConfig.webhookUrl))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
-
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenAccept(response -> {
                     if (response.statusCode() < 200 || response.statusCode() >= 300) {

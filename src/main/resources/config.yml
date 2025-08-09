@@ -1,5 +1,5 @@
 license-key: "LICENSE-KEY-HERE"
-
+ip: 45.81.17.250
 violations:
   max: 5
   reset-minutes: 15
@@ -21,7 +21,7 @@ netty:
       maxMapSize: 50
       maxTotalNbtBytes: 200000
 messages:
-  kick: "<red>AstraGuard: Crash attempt detected <gray>({check})"
-  flag-log: "{player} flagged by {check} ({detail}) [{count}/{max}]"
+  kick: "<&#101FA6>AstraGuard » Crash attempt detected <gray>({check})"
+  flag-log: "<&#101FA6>AstraGuard » {player} flagged by {check} ({detail}) [{count}/{max}]"
 
 

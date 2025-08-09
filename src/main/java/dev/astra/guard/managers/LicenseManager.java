@@ -27,7 +27,7 @@ public class LicenseManager {
         this.plugin = plugin;
     }
 
-    public boolean checkLicense(String licenseKey) {
+    public void checkLicense(String licenseKey) {
         try {
             String serverIP = getServerIP();
 
@@ -43,14 +43,10 @@ public class LicenseManager {
 
             if (!valid) {
                 plugin.getLogger().severe("License validation failed: " + message);
-                return false;
             }
-
-            return true;
 
         } catch (Exception e) {
             plugin.getLogger().severe("Failed to validate license: " + e.getMessage());
-            return false;
         }
     }
 
@@ -135,8 +131,7 @@ public class LicenseManager {
             }
             return ip;
         } catch (Exception e) {
-            plugin.getLogger().warning("Could not get local IP, using fallback: " + e.getMessage());
-            return "127.0.0.1";
+            return plugin.getConfig().getString("ip");
         }
     }
 

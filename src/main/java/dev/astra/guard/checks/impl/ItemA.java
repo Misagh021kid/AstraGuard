@@ -14,9 +14,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-
 public final class ItemA implements Check {
-
 
     @Override
     public String name() {
@@ -28,8 +26,6 @@ public final class ItemA implements Check {
         PacketTypeCommon type = e.getPacketType();
         Player player = e.getPlayer();
         if (player == null) return;
-
-
 
         if (e.getPacketType() == PacketType.Play.Client.EDIT_BOOK) {
             WrapperPlayClientEditBook editBook;
@@ -43,7 +39,7 @@ public final class ItemA implements Check {
             List<String> pages = editBook.getPages();
 
             if (pages == null || pages.isEmpty()) {
-                kick(player,e,"Illegal book page");
+                kick(player, e, "Illegal book page");
                 return;
             }
 
@@ -56,23 +52,23 @@ public final class ItemA implements Check {
             byte[] dataBytes = sb.toString().getBytes(StandardCharsets.UTF_8);
 
             if (dataBytes.length > maxDataSize) {
-                kick(player,e,"Illegal book page");
+                kick(player, e, "Illegal book page");
                 return;
             }
             if (title == null || title.length() > 32) {
-                kick(player,e,"Illegal book-title page");
+                kick(player, e, "Illegal book-title page");
                 return;
             }
 
             final int MAX_BOOK_PAGES = 50;
             final int MAX_PAGE_CHARACTERS = 256;
             if (pages.size() > MAX_BOOK_PAGES) {
-                kick(player,e, "bytesSize: " + dataBytes.length);
+                kick(player, e, "bytesSize: " + dataBytes.length);
                 return;
             }
             for (String page : pages) {
                 if (page.length() > MAX_PAGE_CHARACTERS) {
-                    kick(player,e, "bytesSize: " + dataBytes.length);
+                    kick(player, e, "bytesSize: " + dataBytes.length);
                     return;
                 }
             }
@@ -90,27 +86,34 @@ public final class ItemA implements Check {
                     ItemMeta meta = bukkitItem.getItemMeta();
                     if (meta != null) {
                         try {
-                            List<net.kyori.adventure.text.Component> lore = meta.lore();
-                            net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer plain = net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText();
+                            Object result = ItemMeta.class.getMethod("getLore").invoke(meta);
+                            List<String> lore = null;
+                            if (result instanceof List) {
+                                lore = ((List<?>) result).stream()
+                                        .filter(o -> o instanceof String)
+                                        .map(o -> (String) o)
+                                        .toList();
+                            }
                             if (lore != null) {
                                 boolean tooManyLines = lore.size() > 30;
-                                boolean tooLongLine = lore.stream().anyMatch(line -> plain.serialize(line).length() > 150);
+                                boolean tooLongLine = lore.stream().anyMatch(line -> line.length() > 150);
 
                                 if (tooManyLines || tooLongLine) {
-                                    kick(p,e, "tooManyLines: " + (tooManyLines ? "lines" : "length"));
+                                    kick(p, e, "tooManyLines: " + (tooManyLines ? "lines" : "length"));
                                 }
                             }
                         } catch (Exception ex) {
-                            kick(p, e, "Invalid item lore JSON");
+                            kick(p, e, "Invalid item lore");
                         }
                     }
                 }
             }
         }
+
     }
+
     private void kick(Player p, PacketReceiveEvent e, String detail) {
         TaskUtil.flag(p, name(), detail);
         e.setCancelled(true);
     }
-
 }

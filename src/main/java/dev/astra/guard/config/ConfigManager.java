@@ -1,15 +1,10 @@
 package dev.astra.guard.config;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import dev.astra.guard.utils.MiniMessageLegacyParser;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class ConfigManager {
-    private static final MiniMessage MM = MiniMessage.miniMessage();
-    private static final LegacyComponentSerializer LEGACY =
-            LegacyComponentSerializer.legacySection();
 
     private final JavaPlugin plugin;
     private FileConfiguration cfg;
@@ -67,8 +62,7 @@ public final class ConfigManager {
     }
 
     private String toLegacy(String s) {
-        Component c = MM.deserialize(s);
-        return LEGACY.serialize(c);
+        return MiniMessageLegacyParser.parse(s);
     }
 
     public int getMaxViolations() {

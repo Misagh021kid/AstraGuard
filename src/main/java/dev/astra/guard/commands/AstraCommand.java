@@ -1,10 +1,8 @@
 package dev.astra.guard.commands;
 
 import dev.astra.guard.Main;
-import dev.astra.guard.config.ConfigManager;
 import dev.astra.guard.managers.AlertManager;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import dev.astra.guard.utils.MiniMessageLegacyParser;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -17,41 +15,44 @@ public class AstraCommand implements CommandExecutor {
 
     public AstraCommand(Main plugin) {
         this.plugin = plugin;
-        ConfigManager cfg = plugin.getConfigManager();
         this.alertManager = plugin.getAlertManager();
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
-                             @NotNull String label, String[] args) {
+    public boolean onCommand(CommandSender sender,
+                             @NotNull Command command,
+                             @NotNull String label,
+                             String[] args) {
         if (!sender.hasPermission("astraguard.admin")) {
-            sender.sendMessage(Component.text("You do not have permission.", NamedTextColor.RED));
+            sender.sendMessage(colorize("<red>You do not have permission."));
             return true;
         }
 
         if (args.length == 0) {
-            sender.sendMessage(usage());
+            sender.sendMessage(colorize("<yellow>Usage: /astra <reload|alerts>"));
             return true;
         }
 
-        return switch (args[0].toLowerCase()) {
+        String sub = args[0].toLowerCase();
+        return switch (sub) {
             case "reload" -> handleReload(sender);
             case "alerts" -> handleToggleAlerts(sender);
             default -> {
-                sender.sendMessage(Component.text("Unknown subcommand.", NamedTextColor.RED));
+                sender.sendMessage(colorize("<red>Unknown subcommand."));
                 yield true;
             }
         };
+
     }
 
     private boolean handleReload(CommandSender sender) {
         try {
             plugin.getConfigManager().reload();
             alertManager.reload();
-            sender.sendMessage(Component.text("Configuration reloaded.", NamedTextColor.GREEN));
+            sender.sendMessage(colorize("&aConfiguration reloaded."));
             plugin.getLogger().info(sender.getName() + " reloaded the configuration.");
         } catch (Exception e) {
-            sender.sendMessage(Component.text("Reload failed: " + e.getMessage(), NamedTextColor.RED));
+            sender.sendMessage(colorize("&cReload failed: " + e.getMessage()));
             plugin.getLogger().severe("Error reloading config: " + e.getMessage());
         }
         return true;
@@ -59,19 +60,19 @@ public class AstraCommand implements CommandExecutor {
 
     private boolean handleToggleAlerts(CommandSender sender) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(Component.text("Only players can toggle alerts.", NamedTextColor.YELLOW));
+            sender.sendMessage(colorize("&eOnly players can toggle alerts."));
             return false;
         }
 
         boolean enabled = alertManager.toggle(player.getUniqueId());
-        Component msg = enabled
-                ? Component.text("Alerts: ENABLED", NamedTextColor.GREEN)
-                : Component.text("Alerts: DISABLED", NamedTextColor.GRAY);
-        player.sendMessage(msg);
+        String msg = enabled
+                ? "&aAstraGuardAlerts » ENABLED"
+                : "&7AstraGuardAlerts » DISABLED";
+        player.sendMessage(colorize(msg));
         return true;
     }
 
-    private Component usage() {
-        return Component.text("Usage: /astra <reload|alerts>", NamedTextColor.YELLOW);
+    private String colorize(String message) {
+        return MiniMessageLegacyParser.parse(message);
     }
 }

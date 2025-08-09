@@ -10,6 +10,7 @@ import dev.astra.guard.config.ConfigManager;
 import dev.astra.guard.listeners.PlayerListener;
 import dev.astra.guard.utils.TaskUtil;
 import dev.astra.guard.webhook.WebhookConfig;
+import dev.astra.guard.webhook.WebhookUtil;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -40,7 +41,7 @@ public final class Main extends JavaPlugin {
     public void onEnable() {
         UpdateChecker updateChecker = new UpdateChecker(this);
         this.version = readPluginVersion();
-        updateChecker.check();
+        updateChecker.checkAndUpdate();
         saveDefaultConfig();
 
         if (!checkLicense()) {
@@ -60,6 +61,7 @@ public final class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         PacketEvents.getAPI().terminate();
+        WebhookUtil.shutdown();
     }
 
     private void initManagers() {

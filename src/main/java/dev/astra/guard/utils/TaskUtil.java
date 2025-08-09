@@ -5,9 +5,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.cache.CacheLoader;
 import dev.astra.guard.Main;
 import dev.astra.guard.config.ConfigManager;
-import dev.astra.guard.managers.AlertManager;
 import dev.astra.guard.webhook.WebhookUtil;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -82,19 +80,19 @@ public final class TaskUtil {
             );
             String plainLogMsg = logMsg.replaceAll("§.", "");
             plugin.getLogger().warning(plainLogMsg);
-            Component alert = Component.text(logMsg);
-            AlertManager manager = plugin.getAlertManager();
+
             Bukkit.getOnlinePlayers().stream()
                     .filter(p -> p.hasPermission("astraguard.alerts"))
-                    .filter(p -> manager.isEnabled(p.getUniqueId()))
-                    .forEach(p -> p.sendMessage(alert));
+                    .filter(p -> plugin.getAlertManager().isEnabled(p.getUniqueId()))
+                    .forEach(p -> p.sendMessage(logMsg));
 
             WebhookUtil.sendPlayerKickedWebhook(player.getName(), check, detail);
 
             runSync(() -> {
                 if (player.isOnline()) {
                     String kickMsg = cfg.getKickMessage().replace("{check}", check);
-                    player.kick(Component.text(kickMsg));
+                    player.kickPlayer(kickMsg);
+
                 }
             });
             return;
@@ -107,14 +105,15 @@ public final class TaskUtil {
         );
         String plainLogMsg = logMsg.replaceAll("§.", "");
         plugin.getLogger().warning(plainLogMsg);
-        Component alert = Component.text(logMsg);
-        AlertManager manager = plugin.getAlertManager();
+
         Bukkit.getOnlinePlayers().stream()
                 .filter(p -> p.hasPermission("astraguard.alerts"))
-                .filter(p -> manager.isEnabled(p.getUniqueId()))
-                .forEach(p -> p.sendMessage(alert));
+                .filter(p -> plugin.getAlertManager().isEnabled(p.getUniqueId()))
+                .forEach(p -> p.sendMessage(logMsg));
+
         WebhookUtil.sendCheckTriggeredWebhook(player.getName(), check, detail, rawCount, max);
     }
+
 
 
 
