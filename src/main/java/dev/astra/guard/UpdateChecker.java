@@ -28,12 +28,13 @@ public class UpdateChecker {
     private final Plugin plugin;
     @SuppressWarnings("FieldMayBeFinal")
     private static String VERSION_URL;
+    @SuppressWarnings("FieldMayBeFinal")
     private static String DOWNLOAD_URL;
     @SuppressWarnings("FieldMayBeFinal")
     private static String SECRET_KEY;
     @SuppressWarnings("FieldMayBeFinal")
     private static String PLUGIN_ID;
-    private static String VERSION = "";
+
     static {
         VERSION_URL = "http://5.42.217.162:5000/version";
         DOWNLOAD_URL = "http://5.42.217.162:3500/download";
@@ -44,6 +45,8 @@ public class UpdateChecker {
     private static final HttpClient CLIENT = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(5))
             .build();
+
+    private String latestVersion;
 
     public UpdateChecker(Plugin plugin) {
         this.plugin = plugin;
@@ -92,8 +95,7 @@ public class UpdateChecker {
     private CompletableFuture<Void> handleVersionResponse(String responseBody) {
         try {
             JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();
-            String latestVersion = json.get("version").getAsString();
-            VERSION = latestVersion;
+            latestVersion = json.get("version").getAsString();
             String currentVersion = plugin.getDescription().getVersion();
 
             if (latestVersion.equalsIgnoreCase(currentVersion)) {
@@ -135,13 +137,16 @@ public class UpdateChecker {
                     .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .build();
 
-            File tempFile = new File(plugin.getDataFolder().getParentFile(), "AstraGuard-"+ VERSION + ".jar");
+            File pluginFile = getPluginJarFile();
+            File parentDir = pluginFile.getParentFile();
+            String newFileName = "AstraGuard-" + latestVersion + ".jar";
+            File newPluginFile = new File(parentDir, newFileName);
 
             return CLIENT.sendAsync(downloadRequest, HttpResponse.BodyHandlers.ofInputStream())
                     .thenAcceptAsync(response -> {
                         if (response.statusCode() == 200) {
                             try (InputStream is = response.body();
-                                 FileOutputStream fos = new FileOutputStream(tempFile)) {
+                                 FileOutputStream fos = new FileOutputStream(newPluginFile)) {
                                 byte[] buffer = new byte[4096];
                                 int bytesRead;
                                 while ((bytesRead = is.read(buffer)) != -1) {
@@ -149,9 +154,30 @@ public class UpdateChecker {
                                 }
                                 fos.flush();
 
-                                Bukkit.getScheduler().runTask(plugin, () ->
-                                        plugin.getLogger().info("Update downloaded to AstraGuard-"+ VERSION + ".jar.")
-                                );
+                                if (System.getProperty("os.name").toLowerCase().contains("win")) {
+                                    Bukkit.getScheduler().runTask(plugin, () -> {
+                                        plugin.getLogger().info("Update downloaded as " + newPluginFile.getName());
+                                        plugin.getLogger().info("Please remove or rename the old plugin file: " + pluginFile.getName());
+                                        plugin.getLogger().info("Restart the server to apply the update.");
+                                    });
+                                } else {
+                                    try {
+                                        if (pluginFile.delete()) {
+                                            if (!newPluginFile.renameTo(pluginFile)) {
+                                                plugin.getLogger().severe("Failed to rename downloaded file to plugin jar!");
+                                            }
+                                        } else {
+                                            plugin.getLogger().severe("Failed to delete current plugin file for replacement!");
+                                        }
+                                        Bukkit.getScheduler().runTask(plugin, () ->
+                                                plugin.getLogger().info("Update saved. It will be loaded after the next server restart.")
+                                        );
+                                    } catch (Exception e) {
+                                        Bukkit.getScheduler().runTask(plugin, () ->
+                                                plugin.getLogger().log(Level.SEVERE, "Failed to replace plugin file: " + e.getMessage(), e)
+                                        );
+                                    }
+                                }
 
                             } catch (IOException e) {
                                 Bukkit.getScheduler().runTask(plugin, () ->

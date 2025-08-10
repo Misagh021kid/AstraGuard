@@ -2,6 +2,9 @@ package dev.astra.guard;
 
 import com.github.retrooper.packetevents.PacketEvents;
 import dev.astra.guard.commands.AstraCommand;
+import dev.astra.guard.commands.AstraTabCompleter;
+import dev.astra.guard.listeners.GUIListener;
+import dev.astra.guard.listeners.JoinListener;
 import dev.astra.guard.listeners.PacketLogger;
 import dev.astra.guard.managers.AlertManager;
 import dev.astra.guard.managers.LicenseManager;
@@ -78,13 +81,17 @@ public final class Main extends JavaPlugin {
     }
 
     private void registerCommands() {
-        Objects.requireNonNull(getCommand("astra")).setExecutor(new AstraCommand(this));
+        AstraCommand astraCommand = new AstraCommand(this);
+        Objects.requireNonNull(getCommand("astra")).setExecutor(astraCommand);
+        Objects.requireNonNull(getCommand("astra")).setTabCompleter(new AstraTabCompleter());
     }
 
     private void registerListeners() {
         new PacketLogger(this).register();
         PacketEvents.getAPI().getEventManager()
                 .registerListener(new PlayerListener(checkManager));
+        getServer().getPluginManager().registerEvents(new GUIListener(), this);
+        getServer().getPluginManager().registerEvents(new JoinListener(alertManager), this);
     }
 
     private boolean checkLicense() {
