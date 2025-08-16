@@ -91,7 +91,7 @@ public class UpdateChecker {
                     return null;
                 });
     }
-
+    @SuppressWarnings("deprecation")
     private CompletableFuture<Void> handleVersionResponse(String responseBody) {
         try {
             JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();

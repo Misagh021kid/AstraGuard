@@ -3,6 +3,8 @@ package dev.astra.guard.utils;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.CacheLoader;
+import dev.astra.guard.LibraryDownloader;
+import dev.astra.guard.LibraryLoader;
 import dev.astra.guard.Main;
 import dev.astra.guard.config.ConfigManager;
 import dev.astra.guard.modules.CrashFlag;
@@ -11,6 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -32,12 +35,37 @@ public final class TaskUtil {
     }
 
     private void connectSQLite() {
+        File dbFile = new File(plugin.getDataFolder(), "flags.db");
         try {
-            connection = DriverManager.getConnection("jdbc:sqlite:" + plugin.getDataFolder() + "/flags.db");
-        } catch (SQLException e) {
-            plugin.getLogger().severe("Failed to connect to SQLite: " + e.getMessage());
+            connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
+        } catch (SQLException ex) {
+            if (ex.getMessage().contains("No suitable driver found")) {
+                try {
+                    File libFolder = new File(plugin.getDataFolder(), "libraries");
+                    if (!libFolder.exists() && !libFolder.mkdirs()) {
+                        plugin.getLogger().severe("Failed to create 'libraries' folder for SQLite JDBC!");
+                        return;
+                    }
+
+                    LibraryDownloader.downloadIfNotExists(libFolder);
+
+                    LibraryLoader loader = new LibraryLoader(plugin);
+                    loader.loadAllLibraries();
+
+                    Class.forName("org.sqlite.JDBC");
+
+                    connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
+                } catch (Exception e) {
+                    plugin.getLogger().severe("Failed to load SQLite JDBC dynamically: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            } else {
+                plugin.getLogger().severe("Failed to connect to SQLite: " + ex.getMessage());
+                ex.printStackTrace();
+            }
         }
     }
+
 
     private void createTable() {
         try (Statement stmt = connection.createStatement()) {

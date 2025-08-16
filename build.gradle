@@ -28,6 +28,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.13.1")
     implementation platform('io.netty:netty-bom:4.1.107.Final')
     implementation 'io.netty:netty-all'
+    implementation 'org.xerial:sqlite-jdbc:3.45.1.0'
 
 
 }

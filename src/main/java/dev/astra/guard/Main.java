@@ -31,7 +31,6 @@ public final class Main extends JavaPlugin {
     private ConfigManager configManager;
     private AlertManager alertManager;
     private CheckManager checkManager;
-    private String version;
 
     @Override
     public void onLoad() {
@@ -42,9 +41,13 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        UpdateChecker updateChecker = new UpdateChecker(this);
-        this.version = readPluginVersion();
-        updateChecker.checkAndUpdate();
+        String version = readPluginVersion();
+        new UpdateChecker(this).checkAndUpdate().whenComplete((res, ex) -> {
+            if (ex != null) {
+                getLogger().severe("Update check failed: " + ex.getMessage());
+            }
+        });
+
         saveDefaultConfig();
 
         if (!checkLicense()) {
@@ -188,8 +191,5 @@ public final class Main extends JavaPlugin {
             getLogger().warning("Could not read version from plugin.yml: " + e.getMessage());
             return "unknown";
         }
-    }
-    public String getPluginVersion() {
-        return version;
     }
 }
