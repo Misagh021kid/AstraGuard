@@ -1,5 +1,4 @@
 license-key: "LICENSE-KEY-HERE"
-ip: 127.0.0.1
 violations:
   max: 5
   reset-minutes: 15

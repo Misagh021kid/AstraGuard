@@ -78,7 +78,13 @@ public final class NettyC implements Check {
             flag(player, ev, "malformed or unsupported NBT");
             return;
         }
-        if (pkt.getWindowClickType() == WrapperPlayClientClickWindow.WindowClickType.QUICK_MOVE) {
+        WrapperPlayClientClickWindow.WindowClickType type = pkt.getWindowClickType();
+
+        if (type == WrapperPlayClientClickWindow.WindowClickType.QUICK_MOVE
+                || type == WrapperPlayClientClickWindow.WindowClickType.PICKUP_ALL
+                || type == WrapperPlayClientClickWindow.WindowClickType.SWAP
+                || type == WrapperPlayClientClickWindow.WindowClickType.PICKUP
+                || type == WrapperPlayClientClickWindow.WindowClickType.CLONE) {
             return;
         }
 

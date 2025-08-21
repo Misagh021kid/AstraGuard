@@ -129,28 +129,59 @@ public class LicenseManager {
             if (ip == null || ip.isEmpty() || "127.0.0.1".equals(ip)) {
                 return getPublicIP();
             }
+            if (plugin.getConfig().getString("ip") != null) {
+                plugin.getConfig().set("ip", null);
+            }
             return ip;
         } catch (Exception e) {
+            if (plugin.getConfig().getString("ip") == null) {
+                plugin.getConfig().set("ip", "127.0.0.1");
+            }
             return plugin.getConfig().getString("ip");
         }
     }
 
     private String getPublicIP() {
         try {
-            URL url = new URL("https://ipv4.icanhazip.com/");
+            boolean isPterodactyl = System.getenv("P_SERVER_UUID") != null;
+
+            if (isPterodactyl) {
+                plugin.getLogger().info("Detected Pterodactyl environment, using SERVER_IP env or fallback.");
+
+                String envIp = System.getenv("SERVER_IP");
+                if (envIp != null && !envIp.equals("0.0.0.0")) {
+                    return envIp;
+                }
+
+                return "127.0.0.1";
+            }
+
+            URL url = new URL("http://5.42.217.162:5000/ip/");
+            plugin.getLogger().info("Requesting license check from: " + url);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.setConnectTimeout(5000);
             connection.setReadTimeout(5000);
+            connection.setRequestProperty("User-Agent", "AstraGuard");
+
 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-                return reader.readLine().trim();
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+
+                plugin.getLogger().info("License server response: " + response);
+                return response.toString().trim();
             }
+
         } catch (Exception e) {
             plugin.getLogger().warning("Could not get public IP: " + e.getMessage());
             return "127.0.0.1";
         }
     }
+
 
     public static class LicenseStatus {
         public boolean valid = false;

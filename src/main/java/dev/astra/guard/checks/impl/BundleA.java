@@ -10,30 +10,37 @@ import org.bukkit.entity.Player;
 
 public final class BundleA implements Check {
 
-    @Override public String name() { return "Bundle-A"; }
+    private static final int MIN_INDEX = -1;
+    private static final int MAX_INDEX = 127;
+
+    @Override
+    public String name() {
+        return "Bundle-A";
+    }
 
     @Override
     public void handle(PacketReceiveEvent e) {
         if (e.getPacketType() != PacketType.Play.Client.SELECT_BUNDLE_ITEM) return;
-        if (!e.getServerVersion().isNewerThan(ServerVersion.V_1_17))       return;
+        if (!e.getServerVersion().isNewerThanOrEquals(ServerVersion.V_1_17)) return;
 
         Player player = e.getPlayer();
         if (player == null) return;
 
         try {
-            WrapperPlayClientSelectBundleItem pkt = new WrapperPlayClientSelectBundleItem(e);
-            int idx = pkt.getSelectedItemIndex();
+            WrapperPlayClientSelectBundleItem packet = new WrapperPlayClientSelectBundleItem(e);
+            int index = packet.getSelectedItemIndex();
 
-            if (idx < 0 || idx > 127) {
-                flag(player, e, "index="+idx);
+            if (index < MIN_INDEX || index > MAX_INDEX) {
+                flag(player, e, "invalid_index=" + index);
             }
+
         } catch (IllegalArgumentException ex) {
-            flag(player, e, "malformed packet" + " ");
+            flag(player, e, "malformed_packet");
         }
     }
 
-    private void flag(Player p, PacketReceiveEvent e, String detail) {
-        TaskUtil.flag(p, name(), detail);
+    private void flag(Player player, PacketReceiveEvent e, String detail) {
+        TaskUtil.flag(player, name(), detail);
         e.setCancelled(true);
     }
 }
