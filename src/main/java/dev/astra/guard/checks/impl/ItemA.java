@@ -77,31 +77,26 @@ public final class ItemA implements Check {
             String itemname = wrapper.getItemName();
 
             if (itemname != null && !itemname.isEmpty()) {
-                e.setCancelled(true);
-
                 Player p = e.getPlayer();
-                org.bukkit.inventory.ItemStack bukkitItem = player.getInventory().getItemInMainHand();
+                org.bukkit.inventory.ItemStack bukkitItem = p.getInventory().getItemInMainHand();
 
                 if (bukkitItem.hasItemMeta()) {
                     ItemMeta meta = bukkitItem.getItemMeta();
                     if (meta != null) {
                         try {
-                            Object result = ItemMeta.class.getMethod("getLore").invoke(meta);
-                            List<String> lore = null;
-                            if (result instanceof List) {
-                                lore = ((List<?>) result).stream()
-                                        .filter(o -> o instanceof String)
-                                        .map(o -> (String) o)
-                                        .toList();
-                            }
+                            @SuppressWarnings("deprecation")
+                            List<String> lore = meta.getLore();
                             if (lore != null) {
                                 boolean tooManyLines = lore.size() > 30;
-                                boolean tooLongLine = lore.stream().anyMatch(line -> line.length() > 150);
+                                boolean tooLongLine = lore.stream()
+                                        .anyMatch(line -> line.length() > 150);
 
                                 if (tooManyLines || tooLongLine) {
-                                    kick(p, e, "tooManyLines: " + (tooManyLines ? "lines" : "length"));
+                                    kick(p, e, "invalid_lore: "
+                                            + (tooManyLines ? "too many lines" : "line too long"));
                                 }
                             }
+
                         } catch (Exception ex) {
                             kick(p, e, "Invalid item lore");
                         }
@@ -109,6 +104,7 @@ public final class ItemA implements Check {
                 }
             }
         }
+
 
     }
 

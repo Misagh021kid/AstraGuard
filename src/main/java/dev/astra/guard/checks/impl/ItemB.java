@@ -15,29 +15,28 @@ public final class ItemB implements Check {
     }
 
     @Override
-    public void handle(PacketReceiveEvent e) {
-        if (e.getPacketType() != PacketType.Play.Client.PICK_ITEM) {
-            return;
-        }
+    public void handle(final PacketReceiveEvent e) {
+        if (e.getPacketType() != PacketType.Play.Client.PICK_ITEM) return;
 
-        WrapperPlayClientPickItem pickItem;
+        final Player player = e.getPlayer();
+        if (player == null) return;
+
+        final WrapperPlayClientPickItem pickItem;
         try {
             pickItem = new WrapperPlayClientPickItem(e);
         } catch (Exception ex) {
-            Player p = e.getPlayer();
-            kick(p, e, "malformed or unsupported");
+            kick(player, e, "malformed_or_unsupported_packet");
             return;
         }
-        int slot = pickItem.getSlot();
-        if (slot < 0) {
-            Player player = e.getPlayer();
-            if (player == null) return;
+
+        final int slot = pickItem.getSlot();
+
+        if (slot < 0 || slot > 8) {
             kick(player, e, "invalid_pick_slot=" + slot);
         }
     }
 
-
-    private void kick(Player player, PacketReceiveEvent e, String detail) {
+    private void kick(final Player player, final PacketReceiveEvent e, final String detail) {
         TaskUtil.flag(player, name(), detail);
         e.setCancelled(true);
     }
