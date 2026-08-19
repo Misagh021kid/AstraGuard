@@ -19,8 +19,8 @@ public class LicenseManager {
     @SuppressWarnings("FieldMayBeFinal")
     private static String API_KEY;
     static {
-        LICENSE_SERVER = "http://5.42.217.162:5000";
-        API_KEY = "AstRaDeeeveeepolmeeeent2025FindSecrrretttKeeyyFoRRRPLULGIN";
+        LICENSE_SERVER = "http://testserver";
+        API_KEY = "AstRaDeeeveeepolmeeeent2025FindSecrrretttKeeyyFoRRRPLULGIN"; // i put it just for example (:
     }
 
     public LicenseManager(Main plugin) {
